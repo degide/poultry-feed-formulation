@@ -71,6 +71,10 @@ notebook/
 docker-compose.yml
 ```
 
+## Video DEMO
+
+Demo link: [Youtube Video Demo](https://www.bugufi.link/qkpgmL)
+
 ## Getting started
 
 You need either Docker, or local Python 3.11+ with a PostgreSQL 16 instance you
