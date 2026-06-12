@@ -3,13 +3,12 @@
 Supports manual price entry, filtered time-series retrieval, and a
 "latest price per ingredient at a location" helper used at formulation time.
 """
-
 from __future__ import annotations
 
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -72,28 +71,22 @@ async def latest_prices(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
 ) -> list[MarketPrice]:
-    """Return the most recent price per ingredient at a given market."""
-    cond = [MarketPrice.market_location == market_location]
+    """Return the most recent observed price per ingredient at a given market."""
+    cond = [
+        MarketPrice.market_location == market_location,
+        MarketPrice.is_forecast.is_(False),
+    ]
     if as_of is not None:
         cond.append(MarketPrice.price_date <= as_of)
 
-    # Latest price_date per ingredient at this location.
-    subq = (
-        select(
-            MarketPrice.ingredient_id,
-            func.max(MarketPrice.price_date).label("max_date"),
-        )
-        .where(*cond)
-        .group_by(MarketPrice.ingredient_id)
-        .subquery()
-    )
     stmt = (
         select(MarketPrice)
-        .join(
-            subq,
-            (MarketPrice.ingredient_id == subq.c.ingredient_id)
-            & (MarketPrice.price_date == subq.c.max_date),
+        .where(*cond)
+        .distinct(MarketPrice.ingredient_id)
+        .order_by(
+            MarketPrice.ingredient_id,
+            MarketPrice.price_date.desc(),
+            MarketPrice.price_id.desc(),
         )
-        .where(MarketPrice.market_location == market_location)
     )
     return list(await db.scalars(stmt))

@@ -45,6 +45,11 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", tags=["system"])
+async def devtools_manifest() -> dict[str, str]:
+    """Manifest for Chrome DevTools extension (optional)."""
+    return {}
+
 
 @app.get("/health", tags=["system"])
 async def health() -> dict[str, str]:
