@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Environment / secrets
+.env
+*.env
+!.env.example
+
+# Local DB / SQLite caches
+*.sqlite3
+*.db
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Build artefacts
+dist/
+build/
+
+# Markdown files
+docs/**/*.md

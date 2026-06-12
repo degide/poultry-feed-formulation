@@ -1,0 +1,10 @@
+# Extra dependencies to run ModelNotebook.ipynb.
+# Install the backend requirements first (backend/requirements.txt provides
+# scikit-learn, pandas, numpy and the app package the notebook imports), then:
+#   pip install -r requirements.txt
+matplotlib==3.10.9
+seaborn==0.13.2
+jupyter==1.1.1
+nbformat==5.10.4
+nbconvert==7.17.1
+ipykernel==7.3.0
