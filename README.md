@@ -146,6 +146,8 @@ everything needs a Bearer token: log in, copy the token, hit **Authorize**.
 
 For now, the working interface is the API Swagger UI and the model notebook.
 
+![swagger.png](./screenshots/swagger.png)
+
 Data visualisations produced by the notebook live in [`docs/figures/`](docs/figures):
 
 | File | Visualization |
