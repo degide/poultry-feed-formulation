@@ -29,9 +29,6 @@ class FeedApp extends StatelessWidget {
   }
 }
 
-/// A gate that shows a loading spinner while the session is restoring, then
-/// either the home screen or the login screen depending on whether the user is
-/// logged in.
 class _Gate extends StatelessWidget {
   const _Gate();
 

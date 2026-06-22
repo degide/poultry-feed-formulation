@@ -77,7 +77,7 @@ class _ParetoPainter extends CustomPainter {
 
     // gridlines + tick labels
     final grid = Paint()
-      ..color = axis.withOpacity(0.5)
+      ..color = axis.withValues(alpha: 0.5)
       ..strokeWidth = 1;
     for (var i = 0; i <= 3; i++) {
       final fy = minY + (maxY - minY) * i / 3;
@@ -95,7 +95,7 @@ class _ParetoPainter extends CustomPainter {
     final axisPaint = Paint()..color = axis..strokeWidth = 1.4;
     canvas.drawLine(plot.bottomLeft, plot.bottomRight, axisPaint);
     canvas.drawLine(plot.topLeft, plot.bottomLeft, axisPaint);
-    _text(canvas, 'cost (RWF/kg)', Offset(4, padT - 4), label, 10);
+    _text(canvas, 'cost (RWF/kg)', const Offset(4, padT - 4), label, 10);
     _text(canvas, 'ration change (DTSI) ->',
         Offset(plot.right - 140, plot.bottom + 16), label, 10);
 
@@ -110,7 +110,7 @@ class _ParetoPainter extends CustomPainter {
       canvas.drawPath(
         path,
         Paint()
-          ..color = point.withOpacity(0.35)
+          ..color = point.withValues(alpha: 0.35)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
       );
@@ -121,12 +121,12 @@ class _ParetoPainter extends CustomPainter {
       final isSel = selectedId != null && p.formulationId == selectedId;
       final o = toPx(p.dtsi, p.cost);
       if (isSel) {
-        canvas.drawCircle(o, 11, Paint()..color = accent.withOpacity(0.20));
+        canvas.drawCircle(o, 11, Paint()..color = accent.withValues(alpha: 0.20));
         canvas.drawCircle(o, 6, Paint()..color = accent);
         canvas.drawCircle(
             o, 6, Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = 2);
       } else {
-        canvas.drawCircle(o, 6, Paint()..color = point.withOpacity(0.18));
+        canvas.drawCircle(o, 6, Paint()..color = point.withValues(alpha: 0.18));
         canvas.drawCircle(o, 3.6, Paint()..color = point);
       }
     }

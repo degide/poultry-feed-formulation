@@ -55,7 +55,7 @@ class IconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: c.withOpacity(0.12),
+        color: c.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(size * 0.28),
       ),
       child: Icon(icon, color: c, size: size * 0.5),
@@ -157,7 +157,7 @@ class EmptyState extends StatelessWidget {
               width: 84,
               height: 84,
               decoration: BoxDecoration(
-                color: scheme.primary.withOpacity(0.08),
+                color: scheme.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 38, color: scheme.primary),
@@ -170,8 +170,10 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: 6),
               Text(message!,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: scheme.onSurfaceVariant)),
             ],
             if (action != null) ...[
               const SizedBox(height: 18),
@@ -237,7 +239,7 @@ class GradientHeader extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(subtitle!,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.85),
+                          color: Colors.white.withValues(alpha: 0.85),
                           fontSize: 13.5,
                         )),
                   ],
@@ -266,7 +268,7 @@ class Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: c.withOpacity(0.12),
+        color: c.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -276,9 +278,14 @@ class Pill extends StatelessWidget {
             Icon(icon, size: 14, color: c),
             const SizedBox(width: 4),
           ],
-          Text(label,
-              style: TextStyle(
-                  color: c, fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(
+              color: c,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

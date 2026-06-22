@@ -134,7 +134,7 @@ class _FlockDetailScreenState extends State<FlockDetailScreen> {
                                             .titleMedium),
                                     const SizedBox(width: 8),
                                     if (s.isSelected)
-                                      Pill('Active', icon: Icons.check),
+                                      const Pill('Active', icon: Icons.check),
                                   ]),
                                   const SizedBox(height: 2),
                                   Text(

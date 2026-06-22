@@ -110,7 +110,7 @@ class _ResultScreenState extends State<ResultScreen> {
           AppCard(
             child: Row(
               children: [
-                IconBadge(Icons.savings_outlined, size: 48),
+                const IconBadge(Icons.savings_outlined, size: 48),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(

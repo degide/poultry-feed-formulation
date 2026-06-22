@@ -65,7 +65,7 @@ class _FormulationDetailScreenState extends State<FormulationDetailScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) Navigator.of(context).pop(_changed);
       },
       child: Scaffold(
@@ -95,7 +95,7 @@ class _FormulationDetailScreenState extends State<FormulationDetailScreen> {
                           Pill(d.generatedBy, icon: Icons.memory),
                           const Spacer(),
                           if (d.isSelected)
-                            Pill('Active', icon: Icons.check_circle),
+                            const Pill('Active', icon: Icons.check_circle),
                         ],
                       ),
                       const SizedBox(height: 14),
@@ -104,7 +104,7 @@ class _FormulationDetailScreenState extends State<FormulationDetailScreen> {
                           Expanded(
                             child: _Metric(
                               label: 'Cost',
-                              value: '${d.cost.toStringAsFixed(1)}',
+                              value: d.cost.toStringAsFixed(1),
                               unit: 'RWF/kg',
                               icon: Icons.payments_outlined,
                             ),

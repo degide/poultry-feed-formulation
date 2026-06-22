@@ -189,7 +189,7 @@ class _BacktestCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              IconBadge(Icons.verified_outlined, size: 38),
+              const IconBadge(Icons.verified_outlined, size: 38),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

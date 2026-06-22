@@ -66,7 +66,7 @@ class AccountScreen extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                IconBadge(Icons.dns_outlined, size: 40),
+                const IconBadge(Icons.dns_outlined, size: 40),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(

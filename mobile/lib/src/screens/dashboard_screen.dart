@@ -156,9 +156,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(height: 22),
                       const SectionHeader('How it works'),
-                      AppCard(
+                      const AppCard(
                         child: Column(
-                          children: const [
+                          children: [
                             _Step(
                                 n: '1',
                                 text: 'Record market prices for your ingredients.'),

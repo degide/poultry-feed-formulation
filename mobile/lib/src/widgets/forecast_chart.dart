@@ -68,7 +68,7 @@ class _LinePainter extends CustomPainter {
       final fy = minY + (maxY - minY) * i / 3;
       final y = plot.bottom - plot.height * i / 3;
       canvas.drawLine(Offset(plot.left, y), Offset(plot.right, y),
-          Paint()..color = axis.withOpacity(0.5)..strokeWidth = 1);
+          Paint()..color = axis.withValues(alpha: 0.5)..strokeWidth = 1);
       _text(canvas, fy.toStringAsFixed(0), Offset(2, y - 6), 9);
     }
 
@@ -102,7 +102,7 @@ class _LinePainter extends CustomPainter {
         bandPath.lineTo(o.dx, o.dy);
       }
       bandPath.close();
-      canvas.drawPath(bandPath, Paint()..color = forecastLine.withOpacity(0.14));
+      canvas.drawPath(bandPath, Paint()..color = forecastLine.withValues(alpha: 0.14));
     }
 
     // gradient fill under history
@@ -119,7 +119,7 @@ class _LinePainter extends CustomPainter {
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [line.withOpacity(0.28), line.withOpacity(0.0)],
+          colors: [line.withValues(alpha: 0.28), line.withValues(alpha: 0.0)],
         ).createShader(plot),
     );
 

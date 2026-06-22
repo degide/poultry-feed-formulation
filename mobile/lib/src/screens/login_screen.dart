@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
+                        color: Colors.white.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(Icons.grain, color: Colors.white, size: 38),
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text('Least-cost rations that move with the market',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.88), fontSize: 13.5)),
+                            color: Colors.white.withValues(alpha: 0.88), fontSize: 13.5)),
                   ],
                 ),
               ),
@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 14),
                         DropdownButtonFormField<String>(
-                          value: _role,
+                          initialValue: _role,
                           decoration: const InputDecoration(
                             labelText: 'Role',
                             prefixIcon: Icon(Icons.badge_outlined),
@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: scheme.errorContainer.withOpacity(0.5),
+                            color: scheme.errorContainer.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
