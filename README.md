@@ -89,3 +89,7 @@ To spin up the entire application stack, refer to the setup steps in the sub-pro
 ### Mobile Client UI
 
 ![login](./screenshots/login.png) ![price forecasts](./screenshots/price_forecasts.png) ![formulated ration](./screenshots/formulation%20_ration_details.png)
+
+## License
+
+[MIT](./LICENSE)
