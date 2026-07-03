@@ -4,6 +4,8 @@ This directory contains the Dart source code for the Flutter mobile application,
 
 The mobile app operates as a thin client: it communicates with the FastAPI backend to run optimization jobs, fetch price forecasts, retrieve historical logs, and record local market prices.
 
+Android APK: [feed_formulation-debug.apk](../apk/feed_formulation-debug.apk)
+
 ## Requirements & Setup
 
 *   **SDK**: Flutter SDK 3.x
@@ -37,13 +39,13 @@ The API client base URL is defined in `lib/src/config.dart`. By default, it auto
 ## Key App Components
 
 ### 1. Cascading Location Selection (`LocationSelector`)
-To run forecasts or formulations for specific local markets, the app implements a cascading dropdown module ([LocationSelector](file:///home/degide/Workspace/ALU/poultry-feed-formulation/mobile/lib/src/widgets/location_selector.dart)):
+To run forecasts or formulations for specific local markets, the app implements a cascading dropdown module ([LocationSelector](./lib/src/widgets/location_selector.dart)):
 *   Loads unique market locations from the API.
 *   Presents three sequential dropdowns: **Province**, **District**, and **Market Name**.
 *   Ensures that only valid combinations matching the seeded WFP data are submitted to the backend.
 
 ### 2. LP vs. NSGA-II Comparison Dashboard
-Upon optimization job completion, the results view ([result_screen.dart](file:///home/degide/Workspace/ALU/poultry-feed-formulation/mobile/lib/src/screens/result_screen.dart)) renders a comparative analysis of the Linear Programming (LP) baseline vs the cheapest NSGA-II solution:
+Upon optimization job completion, the results view ([result_screen.dart](.lib/src/screens/result_screen.dart)) renders a comparative analysis of the Linear Programming (LP) baseline vs the cheapest NSGA-II solution:
 *   **Price Comparison**: Computes the formulation costs evaluated under both the forecasted price models and the latest actual chosen market prices, displaying the exact RWF difference.
 *   **Ration Composition**: Evaluates the percentage of ingredients allocated to the LP and NSGA-II formulations, showing the recipe shift difference.
 

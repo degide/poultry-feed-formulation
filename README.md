@@ -4,6 +4,10 @@ This repository contains the source code for a dynamic, least-cost poultry feed 
 
 Feed costs constitute up to 70% of poultry production expenses. In volatile environments, static formulations derived from stale price lists quickly become sub-optimal. This project implements a hybrid approach: a machine learning regression model forecasts next-period raw ingredient prices from historical World Food Programme (WFP) data, and a multi-objective evolutionary algorithm (NSGA-II) optimizes nutritional feed composition against those forecasted prices while maintaining recipe stability.
 
+**API docs:** [http://portstead.com:8000/docs](http://portstead.com:8000/docs)
+
+**Android APK:** [feed_formulation-debug.apk](./apk/feed_formulation-debug.apk)
+
 ## Architecture
 
 The application is structured as a decoupled client-server architecture:
@@ -43,6 +47,14 @@ To solve this, the system uses NSGA-II (Non-dominated Sorting Genetic Algorithm 
 
 ---
 
+## Setup
+
+To spin up the entire application stack, refer to the setup steps in the sub-project directories:
+
+*   For database migrations, model seeding, and API configurations, see the [Backend Setup Guide](./backend/README.md).
+*   For running the mobile interface on emulators or physical devices, see the [Mobile Client Setup Guide](f./mobile/README.md).
+*   For deploying the server stack in a production environment (Contabo VPS / Docker), see the [Production Deployment Guide](./DEPLOYMENT.md).
+
 ## Repository Structure
 
 ```
@@ -71,13 +83,6 @@ To solve this, the system uses NSGA-II (Non-dominated Sorting Genetic Algorithm 
 ```
 
 ---
-
-## Setup
-
-To spin up the entire application stack, refer to the setup steps in the sub-project directories:
-
-*   For database migrations, model seeding, and API configurations, see the [backend setup guide](./backend/README.md).
-*   For running the mobile interface on emulators or physical devices, see the [mobile client setup guide](./mobile/README.md).
 
 ## Screenshots
 

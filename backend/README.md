@@ -38,7 +38,7 @@ The seeder groups price history by year/month and stores it under either `"Rwand
 
 ## API Endpoints
 
-The API is deployed on [http://portstead.com:8000/docs#/](http://portstead.com:8000/docs#/).
+The API is deployed on [http://portstead.com:8000/docs](http://portstead.com:8000/docs).
 
 Alternatively, the openapi specs are in file [openapi.json](../docs/openapi.json)
 
@@ -51,7 +51,7 @@ The API is versioned under `/api/v1` and exposes the following modules:
 *   `/forecasts`: Refresh forecast models (`POST /forecasts/refresh`), list predictions, run temporal backtesting (`GET /forecasts/backtest`), and query walk-forward formulation cost-savings backtests (`GET /forecasts/formulation-backtest`).
 *   `/formulations`: Launch formulation optimization jobs (`POST /formulations/generate`), query job progress, view formulation history, and export rations to PDF or CSV.
 
-![openapi]
+![swagger UI](../screenshots/swagger.png)
 
 ## Test Suite
 
