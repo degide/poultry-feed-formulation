@@ -78,3 +78,13 @@ To spin up the entire application stack, refer to the setup steps in the sub-pro
 
 *   For database migrations, model seeding, and API configurations, see the [backend setup guide](./backend/README.md).
 *   For running the mobile interface on emulators or physical devices, see the [mobile client setup guide](./mobile/README.md).
+
+## Screenshots
+
+### Backend Swagger UI
+
+![swagger screenshot](./screenshots/swagger.png)
+
+### Mobile Client UI
+
+![login](./screenshots/login.png) ![price forecasts](./screenshots/price_forecasts.png) ![formulated ration](./screenshots/formulation%20_ration_details.png)
