@@ -14,7 +14,7 @@ import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform;
 
 class AppConfig {
-  static const String _override = String.fromEnvironment('API_BASE_URL', defaultValue: '');
+  static const String _override = String.fromEnvironment('API_BASE_URL', defaultValue: 'http://portstead.com:8000');
 
   /// REST API base, including the /api/v1 prefix.
   static String get apiBaseUrl {

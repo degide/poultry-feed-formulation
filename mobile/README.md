@@ -11,19 +11,24 @@ Android APK: [feed_formulation-debug.apk](../apk/feed_formulation-debug.apk)
 *   **SDK**: Flutter SDK 3.x
 *   **Target Platforms**: Android (API 21+), iOS (12.0+)
 
-### Setup Instructions
-1.  **Fetch Dependencies**:
-    ```bash
-    flutter pub get
-    ```
+### Setup
+
+1. ** Add platform specific files**
+```sh
+flutter create .
+```
+1. **Fetch Dependencies**:
+```bash
+flutter pub get
+```
 2.  **Run in Debug Mode**:
-    ```bash
-    flutter run
-    ```
+```bash
+flutter run
+```
 3.  **Build Release Android APK**:
-    ```bash
-    flutter build apk --release
-    ```
+```bash
+flutter build apk --release
+```
 
 ## API Integration & Network Config
 
