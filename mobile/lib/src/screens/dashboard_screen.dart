@@ -78,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           Expanded(
                             child: StatCard(
-                              icon: Icons.pets,
+                              icon: Icons.house_siding_rounded,
                               value: flockCount?.toString() ?? '—',
                               label: 'Flocks',
                             ),
@@ -99,7 +99,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Row(
                           children: [
                             IconBadge(
-                              modelReady ? Icons.check_circle : Icons.model_training,
+                              modelReady
+                                  ? Icons.check_circle
+                                  : Icons.model_training,
                               color: modelReady
                                   ? Theme.of(context).colorScheme.primary
                                   : AppColors.accent,
@@ -160,17 +162,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Column(
                           children: [
                             _Step(
-                                n: '1',
-                                text: 'Record market prices for your ingredients.'),
+                              n: '1',
+                              text:
+                                  'Record market prices for your ingredients.',
+                            ),
                             _Step(
-                                n: '2',
-                                text:
-                                    'The model forecasts where local prices are heading.'),
+                              n: '2',
+                              text:
+                                  'The model forecasts where local prices are heading.',
+                            ),
                             _Step(
-                                n: '3',
-                                text:
-                                    'NSGA-II finds the cheapest ration that still meets nutrition.',
-                                last: true),
+                              n: '3',
+                              text:
+                                  'NSGA-II finds the cheapest ration that still meets nutrition.',
+                              last: true,
+                            ),
                           ],
                         ),
                       ),
@@ -222,14 +228,18 @@ class _ActionTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: Theme.of(context).textTheme.titleSmall),
-                Text(subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
               ],
             ),
           ),
-          Icon(Icons.chevron_right,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(
+            Icons.chevron_right,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ],
       ),
     );
@@ -253,11 +263,13 @@ class _Step extends StatelessWidget {
           CircleAvatar(
             radius: 13,
             backgroundColor: scheme.primaryContainer,
-            child: Text(n,
-                style: TextStyle(
-                    color: scheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12)),
+            child: Text(
+              n,
+              style: TextStyle(
+                  color: scheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

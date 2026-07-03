@@ -32,11 +32,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
-    setState(() { _busy = true; _error = null; });
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     final session = context.read<Session>();
     try {
       if (_registerMode) {
-        await session.register(_name.text.trim(), _email.text.trim(), _role, _password.text);
+        await session.register(
+            _name.text.trim(), _email.text.trim(), _role, _password.text);
       } else {
         await session.login(_email.text.trim(), _password.text);
       }
@@ -81,20 +85,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.white.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Icon(Icons.grain, color: Colors.white, size: 38),
+                      child: const Icon(Icons.grain,
+                          color: Colors.white, size: 38),
                     ),
                     const SizedBox(height: 16),
-                    const Text('FeedOptima',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5)),
-                    const SizedBox(height: 4),
-                    Text('Least-cost rations that move with the market',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.88), fontSize: 13.5)),
+                    const Text(
+                      'Feed Formulator',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -111,15 +114,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(_registerMode ? 'Create your account' : 'Welcome back',
+                      Text(
+                          _registerMode
+                              ? 'Create your account'
+                              : 'Welcome back',
                           style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 10),
                       Text(
                           _registerMode
                               ? 'Set up a profile to start formulating.'
                               : 'Sign in to continue.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: scheme.onSurfaceVariant)),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: scheme.onSurfaceVariant)),
                       const SizedBox(height: 22),
                       if (_registerMode) ...[
                         TextFormField(
@@ -129,8 +137,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             labelText: 'Full name',
                             prefixIcon: Icon(Icons.person_outline),
                           ),
-                          validator: (v) =>
-                              (v == null || v.trim().isEmpty) ? 'Required' : null,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Required'
+                              : null,
                         ),
                         const SizedBox(height: 14),
                         DropdownButtonFormField<String>(
@@ -140,11 +149,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             prefixIcon: Icon(Icons.badge_outlined),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'farmer', child: Text('Farmer')),
                             DropdownMenuItem(
-                                value: 'feed_manager', child: Text('Feed manager')),
+                                value: 'farmer', child: Text('Farmer')),
+                            DropdownMenuItem(
+                                value: 'feed_manager',
+                                child: Text('Feed manager')),
                           ],
-                          onChanged: (v) => setState(() => _role = v ?? 'farmer'),
+                          onChanged: (v) =>
+                              setState(() => _role = v ?? 'farmer'),
                         ),
                         const SizedBox(height: 14),
                       ],
@@ -155,8 +167,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           labelText: 'Email',
                           prefixIcon: Icon(Icons.alternate_email),
                         ),
-                        validator: (v) =>
-                            (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                        validator: (v) => (v == null || !v.contains('@'))
+                            ? 'Enter a valid email'
+                            : null,
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
@@ -169,11 +182,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             icon: Icon(_obscure
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined),
-                            onPressed: () => setState(() => _obscure = !_obscure),
+                            onPressed: () =>
+                                setState(() => _obscure = !_obscure),
                           ),
                         ),
-                        validator: (v) =>
-                            (v == null || v.length < 8) ? 'Min 8 characters' : null,
+                        validator: (v) => (v == null || v.length < 8)
+                            ? 'Min 8 characters'
+                            : null,
                       ),
                       const SizedBox(height: 20),
                       if (_error != null) ...[
@@ -185,11 +200,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.error_outline, color: scheme.error, size: 20),
+                              Icon(
+                                Icons.error_outline,
+                                color: scheme.error,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
-                                child: Text(_error!,
-                                    style: TextStyle(color: scheme.error)),
+                                child: Text(
+                                  _error!,
+                                  style: TextStyle(color: scheme.error),
+                                ),
                               ),
                             ],
                           ),
@@ -200,10 +221,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: _busy ? null : _submit,
                         child: _busy
                             ? const SizedBox(
-                                height: 20, width: 20,
+                                height: 20,
+                                width: 20,
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white))
-                            : Text(_registerMode ? 'Create account' : 'Sign in'),
+                            : Text(
+                                _registerMode ? 'Create account' : 'Sign in'),
                       ),
                       const SizedBox(height: 4),
                       TextButton(

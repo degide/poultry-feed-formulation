@@ -59,7 +59,7 @@ class _FlocksScreenState extends State<FlocksScreen> {
               return ListView(children: [
                 const SizedBox(height: 60),
                 EmptyState(
-                  icon: Icons.pets,
+                  icon: Icons.house_siding_rounded,
                   title: 'No flocks yet',
                   message: 'Add your first flock to start formulating rations.',
                   action: FilledButton.icon(

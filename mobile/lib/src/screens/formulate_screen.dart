@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/models.dart';
 import '../session.dart';
+import '../widgets/location_selector.dart';
 import '../widgets/ui.dart';
 import 'result_screen.dart';
 
@@ -15,7 +16,9 @@ class FormulateScreen extends StatefulWidget {
 }
 
 class _FormulateScreenState extends State<FormulateScreen> {
-  final _location = TextEditingController(text: 'Rwanda');
+  String _location = 'Rwanda';
+  List<String> _locations = [];
+  bool _loadingLocations = true;
   String _method = 'both';
   String _priceMode = 'forecast';
   int _horizon = 1;
@@ -23,9 +26,31 @@ class _FormulateScreenState extends State<FormulateScreen> {
   String? _error;
 
   @override
-  void dispose() {
-    _location.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadLocations();
+  }
+
+  Future<void> _loadLocations() async {
+    try {
+      final locs = await context.read<Session>().repo.locations();
+      if (mounted) {
+        setState(() {
+          _locations = locs;
+          if (!_locations.contains(_location) && _locations.isNotEmpty) {
+            _location = _locations.contains('Rwanda') ? 'Rwanda' : _locations.first;
+          }
+          _loadingLocations = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loadingLocations = false;
+          _error = 'Failed to load locations: $e';
+        });
+      }
+    }
   }
 
   Future<void> _run() async {
@@ -34,7 +59,7 @@ class _FormulateScreenState extends State<FormulateScreen> {
     try {
       final jobId = await repo.generate(
         flockId: widget.flock.id,
-        location: _location.text.trim().isEmpty ? 'Rwanda' : _location.text.trim(),
+        location: _location,
         method: _method,
         priceMode: _priceMode,
         horizon: _horizon,
@@ -43,7 +68,7 @@ class _FormulateScreenState extends State<FormulateScreen> {
       );
       if (!mounted) return;
       final changed = await Navigator.of(context).push<bool>(MaterialPageRoute(
-        builder: (_) => ResultScreen(jobId: jobId, flock: widget.flock),
+        builder: (_) => ResultScreen(jobId: jobId, flock: widget.flock, selectedLocation: _location),
       ));
       if (mounted) Navigator.of(context).pop(changed == true);
     } catch (e) {
@@ -65,15 +90,17 @@ class _FormulateScreenState extends State<FormulateScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SectionHeader('Market', padding: EdgeInsets.only(bottom: 8)),
-                TextField(
-                  controller: _location,
-                  decoration: const InputDecoration(
-                    labelText: 'Market location',
-                    prefixIcon: Icon(Icons.place_outlined),
-                    helperText: 'Where to source ingredient prices from',
+                const SectionHeader('Market Sourcing Location', padding: EdgeInsets.only(bottom: 8)),
+                if (_loadingLocations)
+                  const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()))
+                else
+                  LocationSelector(
+                    locations: _locations,
+                    selectedLocation: _location,
+                    onChanged: (newLoc) {
+                      setState(() => _location = newLoc);
+                    },
                   ),
-                ),
               ],
             ),
           ),

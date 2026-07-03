@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,6 +20,7 @@ from app.schemas.forecast import (
     ForecastRefreshResult,
     IngredientForecast,
     MethodMetrics,
+    FormulationBacktestResult,
 )
 from app.services.forecasting import core, service
 
@@ -33,11 +34,12 @@ async def _ingredient_names(db: AsyncSession) -> dict[int, str]:
 
 @router.post("/refresh", response_model=ForecastRefreshResult)
 async def refresh_forecasts(
+    market_location: str = Query("Rwanda", description="Market location to refresh forecasts for."),
     horizon_months: int = Query(1, ge=1, le=12),
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
 ) -> ForecastRefreshResult:
-    forecasts = await service.generate_and_persist_forecasts(db, horizon=horizon_months)
+    forecasts = await service.generate_and_persist_forecasts(db, market_location=market_location, horizon=horizon_months)
     names = await _ingredient_names(db)
     items = [
         IngredientForecast(
@@ -58,6 +60,7 @@ async def refresh_forecasts(
 
 @router.get("", response_model=list[IngredientForecast])
 async def list_forecasts(
+    market_location: str = Query("Rwanda", description="Market location to fetch forecasts for."),
     history_months: int = Query(12, ge=0, le=60),
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
@@ -66,7 +69,10 @@ async def list_forecasts(
     forecast_rows = list(
         await db.scalars(
             select(MarketPrice)
-            .where(MarketPrice.is_forecast.is_(True))
+            .where(
+                MarketPrice.is_forecast.is_(True),
+                MarketPrice.market_location == f"{market_location} (forecast)",
+            )
             .order_by(MarketPrice.ingredient_id, MarketPrice.price_date)
         )
     )
@@ -83,6 +89,7 @@ async def list_forecasts(
                     select(MarketPrice)
                     .where(
                         MarketPrice.ingredient_id == ing_id,
+                        MarketPrice.market_location == market_location,
                         MarketPrice.is_forecast.is_(False),
                     )
                     .order_by(MarketPrice.price_date.desc())
@@ -110,11 +117,12 @@ async def list_forecasts(
 
 @router.get("/backtest", response_model=BacktestResult)
 async def backtest(
+    market_location: str = Query("Rwanda", description="Market location to run backtest for."),
     test_months: int = Query(6, ge=2, le=12),
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
 ) -> BacktestResult:
-    raw = await service.run_backtest(db, test_months=test_months)
+    raw = await service.run_backtest(db, market_location=market_location, test_months=test_months)
     if "error" in raw:
         return BacktestResult(test_months=test_months, note=raw["error"])
 
@@ -132,3 +140,21 @@ async def backtest(
     }
     return BacktestResult(test_months=test_months, methods=methods,
                           per_ingredient_ml=per_ing)
+
+
+@router.get("/formulation-backtest", response_model=FormulationBacktestResult)
+async def formulation_backtest(
+    market_location: str = Query("Rwanda", description="Market location to run formulation backtest for."),
+    test_months: int = Query(6, ge=2, le=24),
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_user),
+) -> FormulationBacktestResult:
+    """Run a walk-forward backtest of the formulation engine over recent history.
+
+    Calculates the actual out-of-sample feed cost savings achieved by optimizing
+    with ML-forecasted prices vs. stale (latest observed) prices.
+    """
+    res = await service.run_formulation_backtest(db, market_location=market_location, test_months=test_months)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return FormulationBacktestResult(**res)

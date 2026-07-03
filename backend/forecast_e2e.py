@@ -136,7 +136,18 @@ def main():
     hist = c.get(f"/formulations/flocks/{flock_id}/history", headers=auth).json()
     print(f"  {len(hist)} formulations persisted across both runs")
 
+    print("\n#8 GET /forecasts/formulation-backtest (out-of-sample savings)")
+    r = c.get("/forecasts/formulation-backtest", headers=auth, params={"test_months": 12})
+    if r.status_code != 200:
+        fail("formulation-backtest", r)
+    fbt = r.json()
+    print(f"  Test months: {fbt['test_months']}")
+    print(f"  Average Stale Cost:   {fbt['average_stale_cost_rwf']:.2f} RWF/kg")
+    print(f"  Average Forecast Cost: {fbt['average_forecast_cost_rwf']:.2f} RWF/kg")
+    print(f"  Average Savings:       {fbt['average_savings_rwf']:.2f} RWF/kg ({fbt['savings_percent']:.2f}%)")
+
     print("\n# ALL FORECASTING E2E CHECKS PASSED #")
+
 
 
 if __name__ == "__main__":

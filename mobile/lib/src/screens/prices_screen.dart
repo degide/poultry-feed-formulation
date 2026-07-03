@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../session.dart';
 import '../widgets/async_builder.dart';
+import '../widgets/location_selector.dart';
 import '../widgets/ui.dart';
 
 class PricesScreen extends StatefulWidget {
@@ -34,9 +35,13 @@ class _PricesScreenState extends State<PricesScreen> {
   void _reload() {
     final repo = context.read<Session>().repo;
     _future = () async {
+      final locations = await repo.locations();
+      if (!locations.contains(_location)) {
+        _location = locations.contains('Rwanda') ? 'Rwanda' : (locations.isNotEmpty ? locations.first : 'Rwanda');
+      }
       final ingredients = await repo.ingredients();
       final prices = await repo.latestPrices(_location);
-      return _PriceView(ingredients, prices);
+      return _PriceView(ingredients, prices, locations);
     }();
   }
 
@@ -47,7 +52,8 @@ class _PricesScreenState extends State<PricesScreen> {
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => _AddPriceSheet(ingredients: ingredients, location: _location),
+      builder: (_) =>
+          _AddPriceSheet(ingredients: ingredients, location: _location),
     );
     if (ok == true) setState(_reload);
   }
@@ -59,25 +65,6 @@ class _PricesScreenState extends State<PricesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Market prices'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(58),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-            child: TextField(
-              controller: _locController,
-              textInputAction: TextInputAction.search,
-              decoration: const InputDecoration(
-                labelText: 'Market location',
-                prefixIcon: Icon(Icons.place_outlined),
-                hintText: 'e.g. Kigali, Rwanda',
-              ),
-              onSubmitted: (v) {
-                _location = v.trim().isEmpty ? 'Rwanda' : v.trim();
-                setState(_reload);
-              },
-            ),
-          ),
-        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async => setState(_reload),
@@ -89,17 +76,42 @@ class _PricesScreenState extends State<PricesScreen> {
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SectionHeader('Sourcing Location', padding: EdgeInsets.only(bottom: 8)),
+                      LocationSelector(
+                        locations: view.locations,
+                        selectedLocation: _location,
+                        onChanged: (newLoc) {
+                          _location = newLoc;
+                          setState(_reload);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
-                      child: Text('${view.prices.length} priced at "$_location"',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: scheme.onSurfaceVariant)),
+                      child: Text(
+                        '${view.prices.length} priced at "$_location"',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
                     ),
-                    FilledButton.tonalIcon(
-                      onPressed: () => _addPrice(view.ingredients),
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Add'),
+                    SizedBox(
+                      height: 36,
+                      width: 140,
+                      child: FilledButton.tonalIcon(
+                        onPressed: () => _addPrice(view.ingredients),
+                        icon: const Icon(Icons.add, size: 18),
+                        label: const Text('Add'),
+                      ),
                     ),
                   ],
                 ),
@@ -122,9 +134,8 @@ class _PricesScreenState extends State<PricesScreen> {
                           if (i > 0)
                             Divider(height: 1, color: scheme.outlineVariant),
                           ListTile(
-                            title: Text(
-                                names[view.prices[i].ingredientId] ??
-                                    '#${view.prices[i].ingredientId}'),
+                            title: Text(names[view.prices[i].ingredientId] ??
+                                '#${view.prices[i].ingredientId}'),
                             subtitle: Text(view.prices[i].priceDate,
                                 style: Theme.of(context).textTheme.bodySmall),
                             trailing: Text(
@@ -146,9 +157,10 @@ class _PricesScreenState extends State<PricesScreen> {
 }
 
 class _PriceView {
-  _PriceView(this.ingredients, this.prices);
+  _PriceView(this.ingredients, this.prices, this.locations);
   final List<Ingredient> ingredients;
   final List<MarketPrice> prices;
+  final List<String> locations;
 }
 
 class _AddPriceSheet extends StatefulWidget {
@@ -178,7 +190,10 @@ class _AddPriceSheetState extends State<_AddPriceSheet> {
       setState(() => _error = 'Pick an ingredient and a price.');
       return;
     }
-    setState(() { _busy = true; _error = null; });
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     try {
       final today = DateTime.now().toIso8601String().substring(0, 10);
       await context.read<Session>().repo.addPrice(
@@ -199,7 +214,9 @@ class _AddPriceSheetState extends State<_AddPriceSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 20, right: 20, top: 16,
+        left: 20,
+        right: 20,
+        top: 16,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: Form(
@@ -210,7 +227,8 @@ class _AddPriceSheetState extends State<_AddPriceSheet> {
           children: [
             Center(
               child: Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(2),
@@ -228,14 +246,16 @@ class _AddPriceSheetState extends State<_AddPriceSheet> {
                   labelText: 'Ingredient',
                   prefixIcon: Icon(Icons.grass_outlined)),
               items: widget.ingredients
-                  .map((i) => DropdownMenuItem(value: i.id, child: Text(i.name)))
+                  .map(
+                      (i) => DropdownMenuItem(value: i.id, child: Text(i.name)))
                   .toList(),
               onChanged: (v) => setState(() => _ingredientId = v),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _price,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                   labelText: 'Price (RWF/kg)',
                   prefixIcon: Icon(Icons.payments_outlined)),
@@ -244,13 +264,18 @@ class _AddPriceSheetState extends State<_AddPriceSheet> {
             ),
             const SizedBox(height: 18),
             if (_error != null) ...[
-              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              Text(_error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
               const SizedBox(height: 12),
             ],
             FilledButton(
               onPressed: _busy ? null : _save,
               child: _busy
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
                   : const Text('Save price'),
             ),
           ],

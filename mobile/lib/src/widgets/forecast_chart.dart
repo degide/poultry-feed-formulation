@@ -45,7 +45,7 @@ class _LinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const padL = 46.0, padB = 18.0, padT = 12.0, padR = 10.0;
+    const padL = 46.0, padB = 30.0, padT = 16.0, padR = 10.0;
     final plot = Rect.fromLTRB(padL, padT, size.width - padR, size.height - padB);
 
     final pts = [...history, ...forecast];
@@ -71,8 +71,37 @@ class _LinePainter extends CustomPainter {
           Paint()..color = axis.withValues(alpha: 0.5)..strokeWidth = 1);
       _text(canvas, fy.toStringAsFixed(0), Offset(2, y - 6), 9);
     }
+    // Y-axis label
+    _text(canvas, "RWF/kg", Offset(2, plot.top - 14), 8.5);
 
     final hLen = history.length;
+
+    // X-axis date labels
+    void drawXLabel(int i, String labelText) {
+      final p = px(i, pts[i].price);
+      canvas.drawLine(
+        Offset(p.dx, plot.bottom),
+        Offset(p.dx, plot.bottom + 4),
+        Paint()..color = axis..strokeWidth = 1
+      );
+      final labelSub = labelText.length >= 7 ? labelText.substring(2, 7) : labelText; // e.g. "26-06"
+      final tp = TextPainter(
+        text: TextSpan(
+          text: labelSub,
+          style: TextStyle(color: label, fontSize: 8.5, fontWeight: FontWeight.w600),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, Offset(p.dx - tp.width / 2, plot.bottom + 6));
+    }
+
+    if (n >= 2) {
+      drawXLabel(0, pts[0].date);
+      if (hLen > 0 && hLen - 1 > 0 && hLen - 1 < n - 1) {
+        drawXLabel(hLen - 1, pts[hLen - 1].date);
+      }
+      drawXLabel(n - 1, pts[n - 1].date);
+    }
 
     // divider where forecast begins
     if (forecast.isNotEmpty && hLen > 0) {
@@ -85,6 +114,8 @@ class _LinePainter extends CustomPainter {
         canvas.drawLine(Offset(x, y), Offset(x, math.min(y + 4, plot.bottom)), dashPaint);
         y += 7;
       }
+      // Draw a "Forecast" label near the split line
+      _text(canvas, "Forecast", Offset(x + 4, plot.top + 2), 8);
     }
 
     // forecast uncertainty band

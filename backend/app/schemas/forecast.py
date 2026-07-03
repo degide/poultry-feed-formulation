@@ -41,3 +41,21 @@ class BacktestResult(BaseModel):
     methods: list[MethodMetrics] = Field(default_factory=list)
     per_ingredient_ml: dict[str, MethodMetrics] = Field(default_factory=dict)
     note: str | None = None
+
+
+class FormulationBacktestMonth(BaseModel):
+    date: date
+    stale_cost_rwf: float
+    forecast_cost_rwf: float
+    savings_rwf: float
+    savings_percent: float
+
+
+class FormulationBacktestResult(BaseModel):
+    test_months: int
+    average_stale_cost_rwf: float
+    average_forecast_cost_rwf: float
+    average_savings_rwf: float
+    savings_percent: float
+    detailed_months: list[FormulationBacktestMonth]
+

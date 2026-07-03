@@ -34,19 +34,28 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: _goTo,
         destinations: const [
           NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard),
-              label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.pets), label: 'Flocks'),
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Home',
+          ),
           NavigationDestination(
-              icon: Icon(Icons.sell_outlined),
-              selectedIcon: Icon(Icons.sell),
-              label: 'Prices'),
-          NavigationDestination(icon: Icon(Icons.show_chart), label: 'Forecasts'),
+            icon: Icon(Icons.house_siding_rounded),
+            label: 'Flocks',
+          ),
           NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Account'),
+            icon: Icon(Icons.sell_outlined),
+            selectedIcon: Icon(Icons.sell),
+            label: 'Prices',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.show_chart),
+            label: 'Forecasts',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Account',
+          ),
         ],
       ),
     );

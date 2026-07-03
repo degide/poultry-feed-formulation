@@ -1,15 +1,12 @@
-/// Central configuration.
+/// config.
 ///
 /// The base URL can be overridden at build/run time without touching code:
 ///
 ///   flutter run --dart-define=API_BASE_URL=http://192.168.1.20:8000
 ///
-/// Defaults are sensible per platform:
+/// Defaults are per platform:
 ///   * Android emulator reaches the host machine on 10.0.2.2, not localhost.
 ///   * iOS simulator / desktop / web use localhost directly.
-///
-/// Platform detection uses `defaultTargetPlatform` (from foundation) rather than
-/// `dart:io`, so this file also compiles for Flutter web.
 
 library;
 

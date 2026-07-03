@@ -11,9 +11,10 @@ import '../widgets/ui.dart';
 import 'formulation_detail_screen.dart';
 
 class ResultScreen extends StatefulWidget {
-  const ResultScreen({super.key, required this.jobId, required this.flock});
+  const ResultScreen({super.key, required this.jobId, required this.flock, required this.selectedLocation});
   final String jobId;
   final Flock flock;
+  final String selectedLocation;
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -24,12 +25,177 @@ class _ResultScreenState extends State<ResultScreen> {
   JobResult? _job;
   String? _error;
   bool _changed = false;
+  List<MarketPrice> _latestPrices = [];
+  List<Ingredient> _ingredients = [];
+  bool _loadingPrices = true;
 
   @override
   void initState() {
     super.initState();
     _poll();
     _timer = Timer.periodic(const Duration(milliseconds: 1500), (_) => _poll());
+    _loadPricesAndIngredients();
+  }
+
+  Future<void> _loadPricesAndIngredients() async {
+    final repo = context.read<Session>().repo;
+    try {
+      final prices = await repo.latestPrices(widget.selectedLocation);
+      final ings = await repo.ingredients();
+      if (mounted) {
+        setState(() {
+          _latestPrices = prices;
+          _ingredients = ings;
+          _loadingPrices = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loadingPrices = false;
+        });
+      }
+    }
+  }
+
+  double _costUnderLatest(ParetoPoint p, Map<int, String> names) {
+    if (_latestPrices.isEmpty) return 0.0;
+    double sum = 0.0;
+    p.proportions.forEach((name, prop) {
+      final lpPrice = _latestPrices.firstWhere(
+        (lp) => names[lp.ingredientId] == name,
+        orElse: () => MarketPrice(priceId: 0, ingredientId: 0, pricePerKg: 0, priceDate: '', marketLocation: ''),
+      );
+      if (lpPrice.pricePerKg > 0) {
+        sum += (prop / 100.0) * lpPrice.pricePerKg;
+      }
+    });
+    return sum;
+  }
+
+  Widget _buildComparisonCard(ParetoPoint lp, ParetoPoint cheapestNsga, Map<int, String> names) {
+    final lpLatest = _costUnderLatest(lp, names);
+    final nsgaLatest = _costUnderLatest(cheapestNsga, names);
+    final scheme = Theme.of(context).colorScheme;
+    final allIngs = <String>{...lp.proportions.keys, ...cheapestNsga.proportions.keys}.toList()..sort();
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const IconBadge(Icons.compare_arrows, size: 36),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('LP vs. NSGA-II Comparison', style: Theme.of(context).textTheme.titleMedium),
+                    Text('Out-of-sample cost & recipe shifts', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text('Price Comparison (RWF/kg)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          const SizedBox(height: 6),
+          Table(
+            columnWidths: const {
+              0: FlexColumnWidth(1.8),
+              1: FlexColumnWidth(1.1),
+              2: FlexColumnWidth(1.1),
+              3: FlexColumnWidth(1.1),
+            },
+            children: [
+              TableRow(
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: scheme.outlineVariant))),
+                children: const [
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('Metric', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('LP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('NSGA-II', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('Diff', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                ],
+              ),
+              TableRow(
+                children: [
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('Forecast Cost', style: TextStyle(fontSize: 11.5))),
+                  Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(lp.cost.toStringAsFixed(1), style: const TextStyle(fontSize: 11.5))),
+                  Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(cheapestNsga.cost.toStringAsFixed(1), style: const TextStyle(fontSize: 11.5))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Text(
+                      '+${(cheapestNsga.cost - lp.cost).toStringAsFixed(1)}',
+                      style: TextStyle(fontSize: 11.5, color: scheme.error, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              if (lpLatest > 0 && nsgaLatest > 0)
+                TableRow(
+                  children: [
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('Recent Price Cost', style: TextStyle(fontSize: 11.5))),
+                    Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(lpLatest.toStringAsFixed(1), style: const TextStyle(fontSize: 11.5))),
+                    Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(nsgaLatest.toStringAsFixed(1), style: const TextStyle(fontSize: 11.5))),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        '+${(nsgaLatest - lpLatest).toStringAsFixed(1)}',
+                        style: TextStyle(fontSize: 11.5, color: scheme.error, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text('Ingredient Composition (%)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          const SizedBox(height: 6),
+          Table(
+            columnWidths: const {
+              0: FlexColumnWidth(2.0),
+              1: FlexColumnWidth(0.9),
+              2: FlexColumnWidth(0.9),
+              3: FlexColumnWidth(0.9),
+            },
+            children: [
+              TableRow(
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: scheme.outlineVariant))),
+                children: const [
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('Ingredient', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('LP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('NSGA-II', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Text('Shift', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5))),
+                ],
+              ),
+              for (final ingName in allIngs) ...[
+                if ((lp.proportions[ingName] ?? 0.0) > 0.1 || (cheapestNsga.proportions[ingName] ?? 0.0) > 0.1)
+                  TableRow(
+                    children: [
+                      Padding(padding: const EdgeInsets.symmetric(vertical: 5), child: Text(ingName, style: const TextStyle(fontSize: 11))),
+                      Padding(padding: const EdgeInsets.symmetric(vertical: 5), child: Text('${(lp.proportions[ingName] ?? 0.0).toStringAsFixed(1)}%', style: const TextStyle(fontSize: 11))),
+                      Padding(padding: const EdgeInsets.symmetric(vertical: 5), child: Text('${(cheapestNsga.proportions[ingName] ?? 0.0).toStringAsFixed(1)}%', style: const TextStyle(fontSize: 11))),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: () {
+                          final diff = (cheapestNsga.proportions[ingName] ?? 0.0) - (lp.proportions[ingName] ?? 0.0);
+                          final color = diff.abs() < 0.1 ? scheme.onSurfaceVariant : (diff > 0 ? scheme.primary : scheme.error);
+                          final prefix = diff > 0 ? '+' : '';
+                          return Text(
+                            '$prefix${diff.toStringAsFixed(1)}%',
+                            style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.bold),
+                          );
+                        }(),
+                      ),
+                    ],
+                  ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -99,9 +265,9 @@ class _ResultScreenState extends State<ResultScreen> {
     final front = [...job.nsga2Front]..sort((a, b) => a.cost.compareTo(b.cost));
     final lp = job.lpSolution;
     final scheme = Theme.of(context).colorScheme;
-    final cheapest = front.isNotEmpty
-        ? front.first
-        : lp; // for the headline number
+    final names = {for (final i in _ingredients) i.id: i.name};
+    final cheapestNsga = front.isNotEmpty ? front.first : null;
+    final cheapest = cheapestNsga ?? lp;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
@@ -146,6 +312,13 @@ class _ResultScreenState extends State<ResultScreen> {
             ],
           ),
         ),
+        if (lp != null && cheapestNsga != null) ...[
+          const SizedBox(height: 14),
+          if (_loadingPrices)
+            const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()))
+          else
+            _buildComparisonCard(lp, cheapestNsga, names),
+        ],
         const SizedBox(height: 18),
         const SectionHeader('Solutions (cheapest first)'),
         if (lp != null) _solutionTile(lp, isLp: true),

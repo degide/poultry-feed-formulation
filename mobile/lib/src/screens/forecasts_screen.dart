@@ -5,6 +5,7 @@ import '../models/models.dart';
 import '../session.dart';
 import '../widgets/async_builder.dart';
 import '../widgets/forecast_chart.dart';
+import '../widgets/location_selector.dart';
 import '../widgets/ui.dart';
 
 class ForecastsScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class ForecastsScreen extends StatefulWidget {
 }
 
 class _ForecastsScreenState extends State<ForecastsScreen> {
+  String _location = 'Rwanda';
   late Future<_ForecastView> _future;
   bool _refreshing = false;
 
@@ -27,24 +29,28 @@ class _ForecastsScreenState extends State<ForecastsScreen> {
   void _reload() {
     final repo = context.read<Session>().repo;
     _future = () async {
-      final forecasts = await repo.forecasts();
+      final locations = await repo.locations();
+      if (!locations.contains(_location)) {
+        _location = locations.contains('Rwanda') ? 'Rwanda' : (locations.isNotEmpty ? locations.first : 'Rwanda');
+      }
+      final forecasts = await repo.forecasts(marketLocation: _location);
       BacktestResult? bt;
       try {
-        bt = await repo.backtest();
+        bt = await repo.backtest(marketLocation: _location);
       } catch (_) {
         bt = null;
       }
-      return _ForecastView(forecasts, bt);
+      return _ForecastView(forecasts, bt, locations);
     }();
   }
 
   Future<void> _trainModel() async {
     setState(() => _refreshing = true);
     try {
-      final n = await context.read<Session>().repo.refreshForecasts();
+      final n = await context.read<Session>().repo.refreshForecasts(marketLocation: _location);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Model trained — $n ingredients forecast')));
+            SnackBar(content: Text('Model trained for $_location — $n ingredients forecast')));
         setState(_reload);
       }
     } catch (e) {
@@ -81,33 +87,48 @@ class _ForecastsScreenState extends State<ForecastsScreen> {
           future: _future,
           onRetry: () => setState(_reload),
           builder: (context, view) {
-            if (view.forecasts.isEmpty) {
-              return ListView(children: [
-                const SizedBox(height: 50),
-                EmptyState(
-                  icon: Icons.insights,
-                  title: 'No forecasts yet',
-                  message:
-                      'Train the model on your market price history to predict next-period prices.',
-                  action: FilledButton.icon(
-                    onPressed: _refreshing ? null : _trainModel,
-                    icon: const Icon(Icons.model_training),
-                    label: const Text('Train the model'),
-                  ),
-                ),
-              ]);
-            }
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
-                if (view.backtest != null && view.backtest!.methods.isNotEmpty)
-                  _BacktestCard(view.backtest!),
-                const SizedBox(height: 6),
-                const SectionHeader('Next-period forecast'),
-                ...view.forecasts.map((f) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _ForecastCard(f),
-                    )),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SectionHeader('Market Sourcing Location', padding: EdgeInsets.only(bottom: 8)),
+                      LocationSelector(
+                        locations: view.locations,
+                        selectedLocation: _location,
+                        onChanged: (newLoc) {
+                          _location = newLoc;
+                          setState(_reload);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (view.forecasts.isEmpty)
+                  EmptyState(
+                    icon: Icons.insights,
+                    title: 'No forecasts yet',
+                    message:
+                        'Train the model on this market\'s price history to predict next-period prices.',
+                    action: FilledButton.icon(
+                      onPressed: _refreshing ? null : _trainModel,
+                      icon: const Icon(Icons.model_training),
+                      label: const Text('Train the model'),
+                    ),
+                  )
+                else ...[
+                  if (view.backtest != null && view.backtest!.methods.isNotEmpty)
+                    _BacktestCard(view.backtest!),
+                  const SizedBox(height: 6),
+                  const SectionHeader('Next-period forecast'),
+                  ...view.forecasts.map((f) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _ForecastCard(f),
+                      )),
+                ],
               ],
             );
           },
@@ -118,9 +139,10 @@ class _ForecastsScreenState extends State<ForecastsScreen> {
 }
 
 class _ForecastView {
-  _ForecastView(this.forecasts, this.backtest);
+  _ForecastView(this.forecasts, this.backtest, this.locations);
   final List<IngredientForecast> forecasts;
   final BacktestResult? backtest;
+  final List<String> locations;
 }
 
 class _ForecastCard extends StatelessWidget {

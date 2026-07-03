@@ -101,6 +101,7 @@ async def _apply_forecast_overrides(
     prices: dict[int, float],
     price_ids: dict[int, int],
     horizon: int,
+    market_location: str,
 ) -> list[int]:
     """Override observed prices with the ML forecast where available.
 
@@ -112,11 +113,14 @@ async def _apply_forecast_overrides(
     """
     from app.services.forecasting import service as forecast_service
 
-    await forecast_service.ensure_forecasts(db, horizon=horizon)
+    await forecast_service.ensure_forecasts(db, market_location=market_location, horizon=horizon)
     forecast_rows = list(
         await db.scalars(
             select(MarketPrice)
-            .where(MarketPrice.is_forecast.is_(True))
+            .where(
+                MarketPrice.is_forecast.is_(True),
+                MarketPrice.market_location == f"{market_location} (forecast)",
+            )
             .order_by(MarketPrice.ingredient_id, MarketPrice.price_date.asc())
         )
     )
@@ -239,7 +243,7 @@ async def run_formulation_job(
             # have a trained series (domestically-traded ingredients).
             if price_mode == "forecast":
                 await _apply_forecast_overrides(
-                    db, prices, price_ids, forecast_horizon_months
+                    db, prices, price_ids, forecast_horizon_months, market_location
                 )
 
             problem = build_problem(

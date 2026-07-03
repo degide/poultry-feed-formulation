@@ -16,6 +16,8 @@ INGREDIENT_TO_WFP: dict[str, str] = {
     "Sodium chloride (salt)": "Salt",
     "Crude palm oil": "Oil (palm)",
     "Fishmeal (65% CP)": "Fish (dry)",
+    "Soybean meal (44%)": "Soybeans",
+    "Wheat bran": "Wheat",
 }
 
 FORECASTABLE_INGREDIENT_NAMES = set(INGREDIENT_TO_WFP)

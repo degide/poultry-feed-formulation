@@ -27,6 +27,11 @@ class Repository {
     return list.map((e) => Ingredient.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  Future<List<String>> locations() async {
+    final list = await client.get('/market-prices/locations') as List;
+    return list.map((e) => e as String).toList();
+  }
+
   Future<List<MarketPrice>> latestPrices(String location) async {
     final list = await client
         .get('/market-prices/latest', query: {'market_location': location}) as List;
@@ -66,22 +71,22 @@ class Repository {
       }) as Map<String, dynamic>);
 
   // forecasts
-  Future<List<IngredientForecast>> forecasts() async {
-    final list = await client.get('/forecasts') as List;
+  Future<List<IngredientForecast>> forecasts({String marketLocation = 'Rwanda'}) async {
+    final list = await client.get('/forecasts', query: {'market_location': marketLocation}) as List;
     return list
         .map((e) => IngredientForecast.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
-  Future<int> refreshForecasts({int horizon = 1}) async {
+  Future<int> refreshForecasts({String marketLocation = 'Rwanda', int horizon = 1}) async {
     final data = await client
-        .postJson('/forecasts/refresh?horizon_months=$horizon', {}) as Map<String, dynamic>;
+        .postJson('/forecasts/refresh?market_location=$marketLocation&horizon_months=$horizon', {}) as Map<String, dynamic>;
     return (data['ingredients_forecast'] as num).toInt();
   }
 
-  Future<BacktestResult> backtest({int testMonths = 6}) async =>
+  Future<BacktestResult> backtest({String marketLocation = 'Rwanda', int testMonths = 6}) async =>
       BacktestResult.fromJson(await client
-          .get('/forecasts/backtest', query: {'test_months': testMonths}) as Map<String, dynamic>);
+          .get('/forecasts/backtest', query: {'market_location': marketLocation, 'test_months': testMonths}) as Map<String, dynamic>);
 
   // formulations
   Future<String> generate({

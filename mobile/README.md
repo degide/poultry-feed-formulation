@@ -1,88 +1,52 @@
-# Feed Formulation
+# Mobile Client
 
-Mobile client for the dynamic least-cost poultry feed formulation system. It's a
-thin client over the FastAPI backend: the heavy NSGA-II optimisation and the
-price-forecasting model run server-side, and the app handles auth, data entry,
-launching optimisation jobs, and visualising the results (Pareto front, price
-forecasts, ration breakdown).
+This directory contains the Dart source code for the Flutter mobile application, which serves as the frontend for the dynamic poultry feed formulation system.
 
-Built with Flutter (Material 3). State is handled with `provider`; the two charts
-(Pareto scatter, forecast line) are drawn with `CustomPainter` rather than a
-charting package, so there's one less dependency to resolve.
+The mobile app operates as a thin client: it communicates with the FastAPI backend to run optimization jobs, fetch price forecasts, retrieve historical logs, and record local market prices.
 
-## Requirements
+## Requirements & Setup
 
-- Flutter SDK 3.x (`flutter --version`)
-- The backend running and reachable. Seed it first:
-  `alembic upgrade head`, `seed_ingredients`, `seed_price_history`.
+*   **SDK**: Flutter SDK 3.x
+*   **Target Platforms**: Android (API 21+), iOS (12.0+)
 
-## Setup
+### Setup Instructions
+1.  **Fetch Dependencies**:
+    ```bash
+    flutter pub get
+    ```
+2.  **Run in Debug Mode**:
+    ```bash
+    flutter run
+    ```
+3.  **Build Release Android APK**:
+    ```bash
+    flutter build apk --release
+    ```
 
-```bash
-flutter pub get
-```
 
-## Pointing the app at the backend
+## API Integration & Network Config
 
-The base URL is resolved in `lib/src/config.dart`:
+The API client base URL is defined in `lib/src/config.dart`. By default, it auto-detects the host platform:
+*   **Android Emulators**: Points to `http://10.0.2.2:8000` (the host network gateway alias).
+*   **iOS Simulators & Web/Desktop Clients**: Points to `http://localhost:8000`.
+*   **Physical Devices**: You must pass your local development machine's LAN IP address during execution:
+    ```bash
+    flutter run --dart-define=API_BASE_URL=http://192.168.1.100:8000
+    ```
 
-- **Android emulator**: defaults to `http://10.0.2.2:8000` (the emulator's alias
-  for the host machine's `localhost`. Plain `localhost` would resolve to the
-  emulator itself).
-- **iOS simulator / web / desktop**: defaults to `http://localhost:8000`.
-- **Physical device**: pass your machine's LAN IP at run time:
+## Key App Components
 
-```bash
-flutter run --dart-define=API_BASE_URL=http://192.168.1.20:8000
-```
+### 1. Cascading Location Selection (`LocationSelector`)
+To run forecasts or formulations for specific local markets, the app implements a cascading dropdown module ([LocationSelector](file:///home/degide/Workspace/ALU/poultry-feed-formulation/mobile/lib/src/widgets/location_selector.dart)):
+*   Loads unique market locations from the API.
+*   Presents three sequential dropdowns: **Province**, **District**, and **Market Name**.
+*   Ensures that only valid combinations matching the seeded WFP data are submitted to the backend.
 
-## Run
+### 2. LP vs. NSGA-II Comparison Dashboard
+Upon optimization job completion, the results view ([result_screen.dart](file:///home/degide/Workspace/ALU/poultry-feed-formulation/mobile/lib/src/screens/result_screen.dart)) renders a comparative analysis of the Linear Programming (LP) baseline vs the cheapest NSGA-II solution:
+*   **Price Comparison**: Computes the formulation costs evaluated under both the forecasted price models and the latest actual chosen market prices, displaying the exact RWF difference.
+*   **Ration Composition**: Evaluates the percentage of ingredients allocated to the LP and NSGA-II formulations, showing the recipe shift difference.
 
-```bash
-flutter run                     # pick a device/emulator when prompted
-# or build a release APK:
-flutter build apk --release
-```
-
-## Screens / flow
-
-| Screen | What it does |
-|--------|--------------|
-| Login / Register | OAuth2 password login on a branded gradient hero; JWT is stored and the session is restored on next launch |
-| Home (dashboard) | Greeting header, at-a-glance stats (flocks, forecasted inputs), model-status card, and quick-action shortcuts into the other tabs |
-| Flocks | List and create flocks; tap one for its detail |
-| Flock detail | Flock summary + past formulations; launch a new formulation |
-| Formulate | Choose market, price mode (latest vs ML forecast), horizon, and engine, then run |
-| Result | Polls the optimisation job, draws the Pareto front (NSGA-II points + LP benchmark), lists solutions |
-| Ration detail | Composition bars, cost/DTSI metrics, set a ration active, copy as CSV |
-| Prices | Latest price per ingredient at a market; add a price |
-| Forecasts | Train/refresh the model, per-ingredient forecast charts, walk-forward accuracy table |
-| Account | User info, current API endpoint, sign out |
-
-The headline flow for a demo is Flock --> Formulate (forecast mode) --> Result -->
-open a solution --> set active. Running the same flock once in "latest" and once in
-"forecast" mode shows the ration and cost shifting with the predicted prices.
-
-## Project structure
-
-```
-lib/
-  main.dart                 # provider + session-restore auth gate
-  src/
-    config.dart             # API base URL resolution
-    session.dart            # auth state (ChangeNotifier), token persistence
-    api/
-      api_client.dart       # http wrapper: base URL, bearer token, error mapping
-      repository.dart       # typed calls for every endpoint used
-    models/models.dart      # models mirroring the backend schemas
-    widgets/                # async builder, Pareto chart, forecast chart, UI kit (ui.dart)
-    screens/                # one file per screen (incl. dashboard)
-    theme.dart              # palette + Material 3 theme
-```
-
-## Notes
-
-- No offline mode in this version. It needs the backend reachable. An on-device
-  reduced NSGA-II + SQLite cache is the planned offline extension.
-- Export here copies the ration as CSV to the clipboard; the backend also serves
-  PDF/CSV at `GET /formulations/{id}/export` if you want server-rendered files.
+### 3. Labeled Data Visualizations
+*   **Forecast Chart**: Visualizes historical prices alongside forecasted prices and their corresponding 80% confidence bands. The canvas includes X-axis date labels (e.g. `"26-06"`), Y-axis unit labels (`"RWF/kg"`), and a vertical forecast divider line.
+*   **Pareto Chart**: Graphs the trade-off frontier solved by NSGA-II (Cost vs. Diet Transition Stability Index). The axes are fully labeled, mapping DTSI along the X-axis and price along the Y-axis.

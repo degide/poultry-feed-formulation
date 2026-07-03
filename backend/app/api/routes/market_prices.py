@@ -90,3 +90,21 @@ async def latest_prices(
         )
     )
     return list(await db.scalars(stmt))
+
+
+@router.get("/locations", response_model=list[str])
+async def list_locations(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_user),
+) -> list[str]:
+    """Return a list of all unique market locations available in the system."""
+    stmt = (
+        select(MarketPrice.market_location)
+        .where(MarketPrice.is_forecast.is_(False))
+        .distinct()
+        .order_by(MarketPrice.market_location)
+    )
+    locations = list(await db.scalars(stmt))
+    if "Rwanda" not in locations:
+        locations.insert(0, "Rwanda")
+    return locations
