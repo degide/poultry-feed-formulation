@@ -1,4 +1,4 @@
-# Dynamic Poultry Feed Formulation System with Machine Learning Price Forecasting
+# poultry-feed-formulation
 
 This repository contains the source code for a dynamic, least-cost poultry feed formulation system designed for volatile market conditions in Sub-Saharan Africa, specifically Rwanda. 
 
