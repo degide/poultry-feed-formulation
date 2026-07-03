@@ -12,6 +12,47 @@ This directory contains the Python backend code for the dynamic feed formulation
 *   **Machine Learning**: Scikit-learn (GradientBoostingRegressor), Pandas, NumPy
 *   **Optimization Engines**: DEAP (Distributed Evolutionary Algorithms in Python) for NSGA-II, SciPy `linprog` (HiGHS solver) for the Linear Programming baseline
 
+## Setup
+
+### Docker (recommended)
+
+```sh
+cp backend/.env.example backend/.env
+docker compose up --build
+```
+
+Seed the reference data once the stack is up:
+
+```sh
+alembic upgrade head
+docker compose exec backend python -m app.db.seed_ingredients
+docker compose exec backend python -m app.db.seed_price_history
+```
+
+### Local (python 3.12+)
+
+```sh
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+cp .env.example .env
+# edit .env: POSTGRES_HOST/PORT/USER/PASSWORD/DB to match your Postgres,
+# and set SECRET_KEY  (openssl rand -hex 32)
+
+alembic upgrade head                  # initial schema
+python -m app.db.seed_ingredients     # 12-ingredient library
+python -m app.db.seed_price_history   # monthly WFP prices
+
+uvicorn app.main:app --reload
+```
+
+Once the server (local or docker base) is running, the APIs can be accessed on:
+
+API: [http://localhost:8000](http://localhost:8000)
+
+Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+
 ## Data Architecture & Seeding
 
 The backend bundles raw price histories in `app/data/`:

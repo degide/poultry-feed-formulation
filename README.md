@@ -2,11 +2,11 @@
 
 A cross-platform system that applies the Non-dominated Sorting Genetic Algorithm II (NSGA-II) to dynamically formulate least-cost poultry rations, optimising two conflicting objectives at once: total ration cost per kg and dietary transition variance (DTSI) relative to the previous production cycle, under market prices volatility conditions.
 
-**API docs:** [http://portstead.com:8000/docs](http://portstead.com:8000/docs)
+**API docs:** [`http://portstead.com:8000/docs`](http://portstead.com:8000/docs)
 
-**Android APK:** [feed_formulation-debug.apk](./apk/feed_formulation-debug.apk)
+**Android APK:** [`feed_formulation-debug.apk`](./apk/feed_formulation-debug.apk)
 
-**Video Demo URL:** [https://www.bugufi.link/8z-tu2](https://www.bugufi.link/8z-tu2)
+**Video Demo URL:** [`https://www.bugufi.link/8z-tu2`](https://www.bugufi.link/8z-tu2)
 
 ## Architecture
 
@@ -16,6 +16,15 @@ The application is structured as a decoupled client-server architecture:
 
 1. [**`Backend`**](./backend/README.md): A FastAPI web service orchestrating database queries, running the SciPy Linear Programming (LP) baseline, executing the NSGA-II genetic algorithm, and managing the Scikit-learn Gradient Boosting price forecaster.
 2. [**`Mobile`**](./mobile/README.md): A Flutter application that allows users to manage flocks, input local market prices, execute optimization runs, visualize price trajectories, and analyze cost vs. diet stability trade-offs.
+
+## Model notebook
+
+The IPYTHON notebook for building and testing the model is implemented in [ModelNotebook.ipynb](./notebook/ModelNotebook.ipynb). It imports the same forecasting code the API runs (app.services.forecasting), so the notebook and the deployed model can't drift apart
+
+```sh
+pip install -r backend/requirements.txt -r notebook/requirements.txt
+jupyter notebook notebook/ModelNotebook.ipynb
+```
 
 ## ML and Optimization Pipeline
 
