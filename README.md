@@ -12,21 +12,10 @@ A cross-platform system that applies the Non-dominated Sorting Genetic Algorithm
 
 The application is structured as a decoupled client-server architecture:
 
-```
-[ WFP Price Data ] --> [ ML Forecasting Service ] 
-                             |
-                             v
-                       [ Predicted Prices ]
-                             |
-                             v
-[ Flutter App ] <---> [ FastAPI Server ] <---> [ DEAP NSGA-II Optimizer ]
-                             ^
-                             v
-                     [ PostgreSQL DB ]
-```
+![architecture](./screenshots/architecture.png)
 
-1. [**Backend service**](./backend/README.md): A FastAPI web service orchestrating database queries, running the SciPy Linear Programming (LP) baseline, executing the NSGA-II genetic algorithm, and managing the Scikit-learn Gradient Boosting price forecaster.
-2. [**Mobile client**](./mobile/README.md): A Flutter application that allows users to manage flocks, input local market prices, execute optimization runs, visualize price trajectories, and analyze cost vs. diet stability trade-offs.
+1. [**`Backend`**](./backend/README.md): A FastAPI web service orchestrating database queries, running the SciPy Linear Programming (LP) baseline, executing the NSGA-II genetic algorithm, and managing the Scikit-learn Gradient Boosting price forecaster.
+2. [**`Mobile`**](./mobile/README.md): A Flutter application that allows users to manage flocks, input local market prices, execute optimization runs, visualize price trajectories, and analyze cost vs. diet stability trade-offs.
 
 ## ML and Optimization Pipeline
 
@@ -34,7 +23,7 @@ The application is structured as a decoupled client-server architecture:
 
 The system trains a pooled gradient boosting regressor on historical return series derived from the World Food Programme retail and wholesale dataset for Rwanda.
 *   **Target**: One-month-ahead log-returns of domestically traded commodities (`Maize`, `Cassava`, `Salt`, `Oil (palm)`, and `Fish (dry)`).
-*   **Exogenous Inputs**: Imported ingredients (such as vitamin premixes and amino acids) without local pricing histories are priced via parity and entered manually.
+*   **Price Inputs**: Imported ingredients (such as vitamin premixes and amino acids) without local pricing histories are priced via parity and entered manually.
 *   **Validation**: Evaluated using walk-forward out-of-sample backtesting against naive random walk and seasonal naive benchmarks.
 
 ### 2. Multi-Objective Feed Formulation
