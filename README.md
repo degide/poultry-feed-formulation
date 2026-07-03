@@ -1,8 +1,6 @@
 # poultry-feed-formulation
 
-This repository contains the source code for a dynamic, least-cost poultry feed formulation system designed for volatile market conditions in Sub-Saharan Africa, specifically Rwanda. 
-
-Feed costs constitute up to 70% of poultry production expenses. In volatile environments, static formulations derived from stale price lists quickly become sub-optimal. This project implements a hybrid approach: a machine learning regression model forecasts next-period raw ingredient prices from historical World Food Programme (WFP) data, and a multi-objective evolutionary algorithm (NSGA-II) optimizes nutritional feed composition against those forecasted prices while maintaining recipe stability.
+A cross-platform system that applies the Non-dominated Sorting Genetic Algorithm II (NSGA-II) to dynamically formulate least-cost poultry rations, optimising two conflicting objectives at once: total ration cost per kg and dietary transition variance (DTSI) relative to the previous production cycle, under market prices volatility conditions.
 
 **API docs:** [http://portstead.com:8000/docs](http://portstead.com:8000/docs)
 
@@ -27,18 +25,20 @@ The application is structured as a decoupled client-server architecture:
                      [ PostgreSQL DB ]
 ```
 
-1. [**Backend Service**](./backend/README.md): A FastAPI web service orchestrating database queries, running the SciPy Linear Programming (LP) baseline, executing the NSGA-II genetic algorithm, and managing the Scikit-learn Gradient Boosting price forecaster.
-2. [**Mobile Client**](./mobile/README.md): A Flutter application that allows users to manage flocks, input local market prices, execute optimization runs, visualize price trajectories, and analyze cost vs. diet stability trade-offs.
+1. [**Backend service**](./backend/README.md): A FastAPI web service orchestrating database queries, running the SciPy Linear Programming (LP) baseline, executing the NSGA-II genetic algorithm, and managing the Scikit-learn Gradient Boosting price forecaster.
+2. [**Mobile client**](./mobile/README.md): A Flutter application that allows users to manage flocks, input local market prices, execute optimization runs, visualize price trajectories, and analyze cost vs. diet stability trade-offs.
 
-## Machine Learning and Optimization Pipeline
+## ML and Optimization Pipeline
 
-### 1. Temporal Price Forecasting
-The system trains a pooled `GradientBoostingRegressor` on historical return series derived from the World Food Programme retail and wholesale dataset for Rwanda.
+### 1. Price Forecasting
+
+The system trains a pooled gradient boosting regressor on historical return series derived from the World Food Programme retail and wholesale dataset for Rwanda.
 *   **Target**: One-month-ahead log-returns of domestically traded commodities (`Maize`, `Cassava`, `Salt`, `Oil (palm)`, and `Fish (dry)`).
 *   **Exogenous Inputs**: Imported ingredients (such as vitamin premixes and amino acids) without local pricing histories are priced via parity and entered manually.
 *   **Validation**: Evaluated using walk-forward out-of-sample backtesting against naive random walk and seasonal naive benchmarks.
 
 ### 2. Multi-Objective Feed Formulation
+
 Feed formulation is traditionally solved via Linear Programming (LP) to find the absolute least-cost vertex that meets nutritional constraints. However, small price movements in LP cause drastic shifts in recipe components, which can stress poultry digestive systems.
 
 To solve this, the system uses NSGA-II (Non-dominated Sorting Genetic Algorithm II) to optimize two conflicting objectives:
