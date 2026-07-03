@@ -4,7 +4,7 @@ This repository contains the source code for a dynamic, least-cost poultry feed 
 
 Feed costs constitute up to 70% of poultry production expenses. In volatile environments, static formulations derived from stale price lists quickly become sub-optimal. This project implements a hybrid approach: a machine learning regression model forecasts next-period raw ingredient prices from historical World Food Programme (WFP) data, and a multi-objective evolutionary algorithm (NSGA-II) optimizes nutritional feed composition against those forecasted prices while maintaining recipe stability.
 
-## System Architecture
+## Architecture
 
 The application is structured as a decoupled client-server architecture:
 
