@@ -48,7 +48,7 @@ To solve this, the system uses NSGA-II (Non-dominated Sorting Genetic Algorithm 
 To spin up the entire application stack, refer to the setup steps in the sub-project directories:
 
 *   For database migrations, model seeding, and API configurations, see the [Backend Setup Guide](./backend/README.md).
-*   For running the mobile interface on emulators or physical devices, see the [Mobile Client Setup Guide](f./mobile/README.md).
+*   For running the mobile interface on emulators or physical devices, see the [Mobile Client Setup Guide](./mobile/README.md).
 *   For deploying the server stack in a production environment (VPS / Docker), see the [Production Deployment Guide](./DEPLOYMENT.md).
 *   For he testing and evaluation analysis and report, see the [Evaluation Report](./REPORT.md).
 
