@@ -38,7 +38,7 @@ The seeder groups price history by year/month and stores it under either `"Rwand
 
 ## API Endpoints
 
-The API is deployed on [http://portstead.com:8000/docs](http://portstead.com:8000/docs).
+The API is deployed on [http://portstead.com:8000/docs](http://portstead.com:8000/docs)
 
 Alternatively, the openapi specs are in file [openapi.json](../docs/openapi.json)
 

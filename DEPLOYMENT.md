@@ -2,8 +2,6 @@
 
 This guide documents the procedures for deploying the dynamic least-cost poultry feed formulation system to a production environment on a **Contabo VPS** (4 vCPUs, 8GB RAM, 150GB SSD) running Ubuntu 22.04 LTS, using Docker and Docker Compose.
 
----
-
 ## Deployment Architecture
 
 The production environment consists of three containerized services managed by Docker Compose:
@@ -11,8 +9,6 @@ The production environment consists of three containerized services managed by D
 1.  **FastAPI Backend**: Runs asynchronously under Uvicorn, handling API routing, forecaster training/predictions, and optimization jobs.
 2.  **PostgreSQL Database**: Persists user credentials, flock records, price snapshots, and historical price records.
 3.  **Nginx Reverse Proxy & SSL (Host Layer)**: Manages incoming HTTPS requests, handles SSL certificates via Let's Encrypt, and forwards traffic to the backend on port `8000`.
-
----
 
 ## Prerequisites & VPS Setup
 
@@ -59,8 +55,6 @@ sudo ufw allow http
 sudo ufw allow https
 sudo ufw enable
 ```
-
----
 
 ## Step-by-Step Deployment
 
@@ -129,7 +123,6 @@ docker compose exec backend python -m app.db.seed_ingredients
 docker compose exec backend python -m app.db.seed_price_history
 ```
 
----
 
 ## SSL Certificate & Reverse Proxy (Nginx)
 
@@ -176,7 +169,6 @@ sudo certbot --nginx -d api.yourdomain.com
 ```
 Follow the interactive prompts to enable automatic redirection from HTTP to HTTPS.
 
----
 
 ## Monitoring & Maintenance
 

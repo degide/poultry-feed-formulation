@@ -8,6 +8,8 @@ Feed costs constitute up to 70% of poultry production expenses. In volatile envi
 
 **Android APK:** [feed_formulation-debug.apk](./apk/feed_formulation-debug.apk)
 
+**Video Demo URL:** [https://www.bugufi.link/8z-tu2](https://www.bugufi.link/8z-tu2)
+
 ## Architecture
 
 The application is structured as a decoupled client-server architecture:
@@ -28,8 +30,6 @@ The application is structured as a decoupled client-server architecture:
 1. [**Backend Service**](./backend/README.md): A FastAPI web service orchestrating database queries, running the SciPy Linear Programming (LP) baseline, executing the NSGA-II genetic algorithm, and managing the Scikit-learn Gradient Boosting price forecaster.
 2. [**Mobile Client**](./mobile/README.md): A Flutter application that allows users to manage flocks, input local market prices, execute optimization runs, visualize price trajectories, and analyze cost vs. diet stability trade-offs.
 
----
-
 ## Machine Learning and Optimization Pipeline
 
 ### 1. Temporal Price Forecasting
@@ -44,8 +44,6 @@ Feed formulation is traditionally solved via Linear Programming (LP) to find the
 To solve this, the system uses NSGA-II (Non-dominated Sorting Genetic Algorithm II) to optimize two conflicting objectives:
 1.  **Cost Minimization**: Minimizing the overall cost per kilogram of feed based on forecasted prices.
 2.  **Diet Transition Stability Index (DTSI)**: Minimizing the cosine distance of the new formulation's ingredient vector relative to the flock's currently selected formulation.
-
----
 
 ## Setup
 
@@ -81,8 +79,6 @@ To spin up the entire application stack, refer to the setup steps in the sub-pro
 │   │   └── main.dart         # App entry point
 └── notebook/                 # Jupyter notebooks for model validation
 ```
-
----
 
 ## Screenshots
 

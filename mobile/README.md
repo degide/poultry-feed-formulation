@@ -25,7 +25,6 @@ Android APK: [feed_formulation-debug.apk](../apk/feed_formulation-debug.apk)
     flutter build apk --release
     ```
 
-
 ## API Integration & Network Config
 
 The API client base URL is defined in `lib/src/config.dart`. By default, it auto-detects the host platform:
@@ -38,7 +37,7 @@ The API client base URL is defined in `lib/src/config.dart`. By default, it auto
 
 ## Key App Components
 
-### 1. Cascading Location Selection (`LocationSelector`)
+### 1. Cascading Location Selection
 To run forecasts or formulations for specific local markets, the app implements a cascading dropdown module ([LocationSelector](./lib/src/widgets/location_selector.dart)):
 *   Loads unique market locations from the API.
 *   Presents three sequential dropdowns: **Province**, **District**, and **Market Name**.
@@ -51,4 +50,4 @@ Upon optimization job completion, the results view ([result_screen.dart](.lib/sr
 
 ### 3. Labeled Data Visualizations
 *   **Forecast Chart**: Visualizes historical prices alongside forecasted prices and their corresponding 80% confidence bands. The canvas includes X-axis date labels (e.g. `"26-06"`), Y-axis unit labels (`"RWF/kg"`), and a vertical forecast divider line.
-*   **Pareto Chart**: Graphs the trade-off frontier solved by NSGA-II (Cost vs. Diet Transition Stability Index). The axes are fully labeled, mapping DTSI along the X-axis and price along the Y-axis.
+*   **Pareto Chart**: Graphs the trade-off frontier solved by NSGA-II (Cost vs. Diet Transition Stability Index).
