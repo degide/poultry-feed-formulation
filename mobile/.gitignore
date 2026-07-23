@@ -9,12 +9,12 @@ build/
 pubspec.lock
 
 # Generated platform folders (run `flutter create .` to regenerate)
-android/
-ios/
-web/
-linux/
-macos/
-windows/
+# android/
+# ios/
+# web/
+# linux/
+# macos/
+# windows/
 
 # IDE
 .idea/

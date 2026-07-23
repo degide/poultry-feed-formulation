@@ -2,6 +2,8 @@ name: feed_formulation
 description: Dynamic least-cost poultry feed formulation.
 publish_to: "none"
 version: 0.2.0+1
+application_id: com.egide.feed_formulation
+application_name: FeedOptima
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
