@@ -5,6 +5,7 @@ import '../config.dart';
 import '../session.dart';
 import '../theme.dart';
 import '../widgets/ui.dart';
+import 'legal_privacy_screen.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -82,6 +83,28 @@ class AccountScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          AppCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              leading: const IconBadge(Icons.gavel_outlined, size: 40),
+              title: const Text('EULA & Privacy Policy',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('View legal terms, data rights, and disclaimers',
+                  style: TextStyle(fontSize: 12)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LegalPrivacyScreen(),
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 24),

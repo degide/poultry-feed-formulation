@@ -147,6 +147,13 @@ def _solve(
     lp_solution: Solution | None = None
     if method in (OptimisationMethod.lp, OptimisationMethod.both):
         lp_solution = run_lp(problem)
+        if (
+            method == OptimisationMethod.both
+            and problem.previous_formulation is None
+            and lp_solution is not None
+            and lp_solution.feasible
+        ):
+            problem.previous_formulation = lp_solution.proportions.copy()
     if method in (OptimisationMethod.nsga2, OptimisationMethod.both):
         nsga_front = run_nsga2(
             problem,

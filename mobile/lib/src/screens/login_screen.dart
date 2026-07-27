@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../session.dart';
 import '../theme.dart';
+import 'legal_privacy_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _password = TextEditingController();
   String _role = 'farmer';
   bool _registerMode = false;
+  bool _acceptTerms = false;
   bool _busy = false;
   bool _obscure = true;
   String? _error;
@@ -30,8 +32,24 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _openLegalScreen({int tab = 0}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LegalPrivacyScreen(initialTab: tab),
+      ),
+    );
+  }
+
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
+    if (_registerMode && !_acceptTerms) {
+      setState(() {
+        _error = 'Please accept the EULA & Privacy Policy to create an account.';
+      });
+      return;
+    }
+
     setState(() {
       _busy = true;
       _error = null;
@@ -190,7 +208,49 @@ class _LoginScreenState extends State<LoginScreen> {
                             ? 'Min 8 characters'
                             : null,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 14),
+                      if (_registerMode) ...[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: Checkbox(
+                                value: _acceptTerms,
+                                onChanged: (v) =>
+                                    setState(() => _acceptTerms = v ?? false),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => _openLegalScreen(tab: 0),
+                                child: Text.rich(
+                                  TextSpan(
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                    children: [
+                                      const TextSpan(
+                                          text: 'I agree to the '),
+                                      TextSpan(
+                                        text: 'EULA & Privacy Policy',
+                                        style: TextStyle(
+                                          color: scheme.primary,
+                                          fontWeight: FontWeight.bold,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                      const TextSpan(
+                                          text: ' and algorithmic guidelines.'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                      ],
                       if (_error != null) ...[
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -239,6 +299,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(_registerMode
                             ? 'Have an account? Sign in'
                             : "New here? Create an account"),
+                      ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => _openLegalScreen(tab: 0),
+                          icon: Icon(Icons.policy_outlined,
+                              size: 16, color: scheme.onSurfaceVariant),
+                          label: Text(
+                            'View EULA & Privacy Policy',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: scheme.onSurfaceVariant,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),

@@ -125,10 +125,18 @@ class _ResultScreenState extends State<ResultScreen> {
                   Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(cheapestNsga.cost.toStringAsFixed(1), style: const TextStyle(fontSize: 11.5))),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Text(
-                      '+${(cheapestNsga.cost - lp.cost).toStringAsFixed(1)}',
-                      style: TextStyle(fontSize: 11.5, color: scheme.error, fontWeight: FontWeight.bold),
-                    ),
+                    child: Builder(builder: (_) {
+                      final diff = cheapestNsga.cost - lp.cost;
+                      final prefix = diff >= 0 ? '+' : '';
+                      return Text(
+                        '$prefix${diff.toStringAsFixed(1)}',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: diff > 0 ? scheme.error : scheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -140,10 +148,18 @@ class _ResultScreenState extends State<ResultScreen> {
                     Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(nsgaLatest.toStringAsFixed(1), style: const TextStyle(fontSize: 11.5))),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Text(
-                        '+${(nsgaLatest - lpLatest).toStringAsFixed(1)}',
-                        style: TextStyle(fontSize: 11.5, color: scheme.error, fontWeight: FontWeight.bold),
-                      ),
+                      child: Builder(builder: (_) {
+                        final diff = nsgaLatest - lpLatest;
+                        final prefix = diff >= 0 ? '+' : '';
+                        return Text(
+                          '$prefix${diff.toStringAsFixed(1)}',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: diff > 0 ? scheme.error : scheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }),
                     ),
                   ],
                 ),
