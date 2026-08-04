@@ -77,7 +77,8 @@ $$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{
 *   **Target Variable**: One-month-ahead log-return $r_{i,t} = \ln\left(P_{i,t} / P_{i,t-1}\right)$ derived from 39+ months of World Food Programme (WFP) and Rwanda Agriculture Board (RAB) retail data. Log-differencing ensures stationarity.
 *   **Feature Matrix**: 1, 2, and 3-month return lags ($r_{t-1}, r_{t-2}, r_{t-3}$), 3-month rolling return mean ($\bar{r}_3$), rolling volatility ($\sigma_3$), harmonic seasonal sine/cosine terms ($\sin\frac{2\pi m}{12}, \cos\frac{2\pi m}{12}$), and categorical ingredient indicators.
 *   **Nominal Price Reconstruction**:  
-    $$\hat{P}_{i,t+1} = P_{i,t} \cdot \exp(\hat{r}_{i,t+1})$$
+
+    $`\hat{P}_{i,t+1} = P_{i,t} \cdot \exp(\hat{r}_{i,t+1})`$
 
 ## Empirical Benchmark Highlights
 
