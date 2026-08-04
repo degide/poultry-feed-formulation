@@ -27,3 +27,6 @@ build/
 
 # Markdown files
 docs/**/*.md
+docs/**/*.puml
+**/*uml.py
+*-old.md

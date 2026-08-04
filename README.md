@@ -1,94 +1,239 @@
-# poultry-feed-formulation
+# Dynamic Least-Cost Poultry Feed Formulation under Sub-Saharan Market Volatility
 
-A cross-platform system that applies the Non-dominated Sorting Genetic Algorithm II (NSGA-II) to dynamically formulate least-cost poultry rations, optimising two conflicting objectives at once: total ration cost per kg and dietary transition variance (DTSI) relative to the previous production cycle, under market prices volatility conditions.
+[![API Documentation](https://img.shields.io/badge/API_Docs-FastAPI_Swagger-009688?style=flat-square&logo=fastapi)](http://portstead.com:8000/docs)
+[![Android APK](https://img.shields.io/badge/Mobile_App-Android_APK-3DDC84?style=flat-square&logo=android)](./apk/feed_formulation-debug.apk)
+[![Video Demo](https://img.shields.io/badge/Video_Defense-Watch_Demo-FF0000?style=flat-square&logo=youtube)](https://www.bugufi.link/8z-tu2)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
-**API docs:** [`http://portstead.com:8000/docs`](http://portstead.com:8000/docs)
+A cross-platform software engineering system that integrates a machine learning price forecasting engine (**Gradient Boosting Regressor**) with a multi-objective evolutionary algorithm (**NSGA-II**) to optimize poultry feed formulations under Sub-Saharan market volatility. 
 
-**Android APK:** [`feed_formulation-debug.apk`](./apk/feed_formulation-debug.apk)
+The system resolves the traditional **Linear Programming (LP) "vertex-hopping" phenomenon**, where minor market price shifts cause sudden ingredient dropouts and abrupt diet changes that induce gut stress and egg-laying drops in poultry flocks, by optimizing both ration cost and **Diet Transition Stability (DTSI)**.
 
-**Video Demo URL:** [`https://www.bugufi.link/8z-tu2`](https://www.bugufi.link/8z-tu2)
+---
 
-## Architecture
+## Key Deliverables & Quick Links
 
-The application is structured as a decoupled client-server architecture:
+*   **Live Swagger API Documentation:** [`http://portstead.com:8000/docs`](http://portstead.com:8000/docs)
+*   **Android Application Binary (APK):** [`apk/feed_formulation-debug.apk`](./apk/feed_formulation-debug.apk)
+*   **System Video Defense & Demo:** [`https://www.bugufi.link/8z-tu2`](https://www.bugufi.link/8z-tu2)
+*   **Jupyter Model Development Notebook:** [`notebook/ModelNotebook.ipynb`](./notebook/ModelNotebook.ipynb)
+*   **Empirical Evaluation & Performance Report:** [`REPORT.md`](./REPORT.md)
+*   **Production Deployment & Server Infrastructure Guide:** [`DEPLOYMENT.md`](./DEPLOYMENT.md)
+*   **UML System Diagrams Specification:** [`docs/uml`](./docs/uml/)
 
-![architecture](./screenshots/architecture.png)
+---
 
-1. [**`Backend`**](./backend/README.md): A FastAPI web service orchestrating database queries, running the SciPy Linear Programming (LP) baseline, executing the NSGA-II genetic algorithm, and managing the Scikit-learn Gradient Boosting price forecaster.
-2. [**`Mobile`**](./mobile/README.md): A Flutter application that allows users to manage flocks, input local market prices, execute optimization runs, visualize price trajectories, and analyze cost vs. diet stability trade-offs.
+## System Architecture
 
-## Model notebook
+The application adopts a decoupled, multi-tier client-server architecture:
 
-The IPYTHON notebook for building and testing the model is implemented in [ModelNotebook.ipynb](./notebook/ModelNotebook.ipynb). It imports the same forecasting code the API runs (app.services.forecasting), so the notebook and the deployed model can't drift apart
-
-```sh
-pip install -r backend/requirements.txt -r notebook/requirements.txt
-jupyter notebook notebook/ModelNotebook.ipynb
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                 Presentation Layer (Cross-Platform Mobile)              │
+│       Flutter Mobile Client (Dart)  <--->  SQLite Offline Cache         │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │ HTTPS / TLS 1.3 (JSON REST API)
+┌────────────────────────────────────▼────────────────────────────────────┐
+│                  Application Gateway & Security Layer                   │
+│       FastAPI Web Server (Python 3.12)  |  JWT Auth & Bcrypt Hashing    │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │ Internal Service Calls
+┌────────────────────────────────────▼────────────────────────────────────┐
+│              Analytics & Optimization Intelligence Core                 │
+│  • ML Forecaster: Scikit-learn Gradient Boosting Regressor (Log-Returns)│
+│  • Pareto Evolutionary Solver: DEAP NSGA-II (Dual Objective $f_1, f_2$) │
+│  • LP Baseline Solver: SciPy linprog (HiGHS Simplex Engine)             │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │ Async SQLAlchemy / AsyncPG
+┌────────────────────────────────────▼────────────────────────────────────┐
+│                         Data Persistence Layer                          │
+│       PostgreSQL Relational DB  |  WFP & RAB Historical Datasets        │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-## ML and Optimization Pipeline
+1.  **Backend Web Gateway & Optimization Service (`backend/`)**: Built with **FastAPI** and **Python 3.12**, managing database ORM persistence via **PostgreSQL**, executing the **SciPy `linprog`** LP baseline, running the **DEAP NSGA-II** evolutionary solver, and orchestrating the **Scikit-learn** Gradient Boosting price forecaster.
+2.  **Cross-Platform Client Application (`mobile/`)**: Built with **Flutter**, providing flock management, local market price entry, asynchronous optimization job execution, interactive Pareto front visualization, and offline data persistence via SQLite.
 
-### 1. Price Forecasting
+---
 
-The system trains a pooled gradient boosting regressor on historical return series derived from the World Food Programme retail and wholesale dataset for Rwanda.
-*   **Target**: One-month-ahead log-returns of domestically traded commodities (`Maize`, `Cassava`, `Salt`, `Oil (palm)`, and `Fish (dry)`).
-*   **Price Inputs**: Imported ingredients (such as vitamin premixes and amino acids) without local pricing histories are priced via parity and entered manually.
-*   **Validation**: Evaluated using walk-forward out-of-sample backtesting against naive random walk and seasonal naive benchmarks.
+## Mathematical Formulations & Optimization Mechanics
 
-### 2. Multi-Objective Feed Formulation
+### 1. Dual-Objective Pareto Formulation (NSGA-II)
+Traditional feed formulation uses Linear Programming (LP) to minimize cost alone ($f_1$), which pushes ingredient proportions to constraint polygon vertices (often 0%). Slight price variations cause binary ingredient swaps. NSGA-II solves a bi-objective trade-off problem:
 
-Feed formulation is traditionally solved via Linear Programming (LP) to find the absolute least-cost vertex that meets nutritional constraints. However, small price movements in LP cause drastic shifts in recipe components, which can stress poultry digestive systems.
+$$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{x}),\, f_2(\mathbf{x}) \right]^T$$
 
-To solve this, the system uses NSGA-II (Non-dominated Sorting Genetic Algorithm II) to optimize two conflicting objectives:
-1.  **Cost Minimization**: Minimizing the overall cost per kilogram of feed based on forecasted prices.
-2.  **Diet Transition Stability Index (DTSI)**: Minimizing the cosine distance of the new formulation's ingredient vector relative to the flock's currently selected formulation.
+*   **Objective 1: Total Ration Cost ($f_1$)**
+    $$f_1(\mathbf{x}) = \sum_{i=1}^{n} x_i \cdot \hat{p}_i$$
+    where $x_i$ is the weight fraction of ingredient $i$, and $\hat{p}_i$ is the observed or ML-forecasted retail price per kg in RWF.
 
-## Setup
+*   **Objective 2: Diet Transition Stability Index ($f_2$ / DTSI)**
+    $$f_2(\mathbf{x}) = 1 - \frac{\mathbf{x} \cdot \mathbf{x}^{\text{active}}}{\|\mathbf{x}\|_2 \|\mathbf{x}^{\text{active}}\|_2}$$
+    where $f_2(\mathbf{x})$ measures the cosine distance relative to the flock's active ration vector $\mathbf{x}^{\text{active}}$. Minimizing DTSI prevents sudden shifts in feed taste, texture, and microbial flora impact.
 
-To spin up the entire application stack, refer to the setup steps in the sub-project directories:
+*   **Feasible Region Constraints ($\mathcal{S}$)**
+    $$\sum_{i=1}^{n} x_i = 1, \qquad L_i \le x_i \le U_i \quad \forall i$$
+    $$\mathbf{A}_{\text{nutrients}} \cdot \mathbf{x} \ge \mathbf{b}_{\text{NRC(1994)}}$$
+    Enforces exact nutritional bounds for Crude Protein, Metabolizable Energy, Lysine, Methionine, Calcium, Available Phosphorus, Crude Fibre, and Dry Matter based on National Research Council (1994) poultry standards.
 
-*   For database migrations, model seeding, and API configurations, see the [Backend Setup Guide](./backend/README.md).
-*   For running the mobile interface on emulators or physical devices, see the [Mobile Client Setup Guide](./mobile/README.md).
-*   For deploying the server stack in a production environment (VPS / Docker), see the [Production Deployment Guide](./DEPLOYMENT.md).
-*   For he testing and evaluation analysis and report, see the [Evaluation Report](./REPORT.md).
+### 2. Price Forecasting Pipeline (GBR)
+*   **Target Variable**: One-month-ahead log-return $r_{i,t} = \ln\left(P_{i,t} / P_{i,t-1}\right)$ derived from 39+ months of World Food Programme (WFP) and Rwanda Agriculture Board (RAB) retail data. Log-differencing ensures stationarity.
+*   **Feature Matrix**: 1, 2, and 3-month return lags ($r_{t-1}, r_{t-2}, r_{t-3}$), 3-month rolling return mean ($\bar{r}_3$), rolling volatility ($\sigma_3$), harmonic seasonal sine/cosine terms ($\sin\frac{2\pi m}{12}, \cos\frac{2\pi m}{12}$), and categorical ingredient indicators.
+*   **Nominal Price Reconstruction**:
+    $$\hat{P}_{i,t+1} = P_{i,t} \cdot \exp(\hat{r}_{i,t+1})$$
+
+---
+
+## Empirical Benchmark Highlights
+
+From the walk-forward validation and backtesting suite documented in [`REPORT.md`](./REPORT.md):
+
+### 1. Price Forecasting Evaluation (39-Month Walk-Forward)
+| Model | MAE (RWF/kg) | RMSE (RWF/kg) | MAPE (%) | Directional Accuracy |
+| :--- | :---: | :---: | :---: | :---: |
+| **Gradient Boosting (GBR)** | **36.1** | **68.5** | **2.52%** | **59.3%** |
+| **Linear Regression (LR)** | 38.4 | 72.1 | 2.61% | 51.8% |
+| **Naive Random Walk (RW)** | 40.1 | 75.4 | 2.68% | 0.0% (Flat) |
+| **Seasonal Naive (SN)** | 126.1 | 209.2 | 8.40% | 40.7% |
+
+### 2. LP Vertex-Hopping vs. NSGA-II Pareto Blending Comparison
+Under identical pricing and layer-hen nutritional constraints:
+
+| Ingredient | LP (Simplex Vertex) | NSGA-II (Cheapest Pareto) | LP Behavior | NSGA-II Behavior |
+| :--- | :---: | :---: | :--- | :--- |
+| **Whole maize grain** | 65.9% | 47.9% | Maximized as sole energy source | Moderated to preserve ratio |
+| **Cassava meal** | **0.0%** | **13.6%** | **Dropped completely (0.0%)** | **Smoothly blended** |
+| **Soybean meal (44%)** | 19.2% | 14.5% | Pushed to strict lower bound | Retained near active composition |
+| **Forecast Cost** | **536.71 RWF/kg** | **544.20 RWF/kg** | Absolute minimum cost | +1.4% cost premium paid for stability |
+| **Diet Shift (DTSI)** | **0.045210** | **0.000000** | **High recipe shock** | **Zero diet shock** |
+
+---
 
 ## Repository Structure
 
 ```
-.
-├── backend/                  # FastAPI web server and ML pipeline
+poultry-feed-formulation/
+├── backend/                      # Python FastAPI web server & ML optimization core
 │   ├── app/
-│   │   ├── api/              # API router and endpoints
-│   │   ├── db/               # SQLAlchemy models and seed scripts
-│   │   ├── models/           # SQLAlchemy models
-│   │   ├── schemas/          # Pydantic schemas
-│   │   ├── services/
-│   │   │   ├── forecasting/  # ML model training and inference
-│   │   │   └── optimization/ # NSGA-II and LP solvers
-│   │   └── data/             # Historical price datasets (WFP CSVs)
-│   ├── alembic/              # Database migration history
-|   └── docker-compose.yml        # Docker composition stack
-├── mobile/                   # Flutter mobile client code
+│   │   ├── api/                  # REST API routers (auth, flocks, ingredients, formulations)
+│   │   ├── core/                 # App configuration & security settings
+│   │   ├── db/                   # Database session, base class, & seed scripts
+│   │   ├── models/               # SQLAlchemy ORM models (User, Flock, Formulation, etc.)
+│   │   ├── schemas/              # Pydantic validation schemas
+│   │   ├── services/             # Domain logic:
+│   │   │   ├── forecasting/      # GBR log-return training, feature extraction, backtests
+│   │   │   └── optimization/     # DEAP NSGA-II solver, SciPy LP engine, NRC bounds
+│   │   └── data/                 # Raw WFP/RAB historical price CSV datasets
+│   ├── alembic/                  # Database migration scripts
+│   ├── test_optimizer.py         # Standalone optimization engine validation script
+│   ├── e2e_smoke.py              # Full REST API end-to-end integration test
+│   ├── forecast_e2e.py           # Forecaster walk-forward validation script
+│   ├── generate_plantuml.py      # PlantUML diagram generator utility
+│   └── docker-compose.yml        # Docker service orchestration configuration
+├── mobile/                       # Cross-platform Flutter mobile client
 │   ├── lib/
 │   │   ├── src/
-│   │   │   ├── api/          # API client and repository
-│   │   │   ├── models/       # Dart model classes
-│   │   │   ├── screens/      # Application view controllers
-│   │   │   └── widgets/      # Charts and UI elements
-│   │   └── main.dart         # App entry point
-└── notebook/                 # Jupyter notebooks for model validation
+│   │   │   ├── api/              # HTTP REST repository & API client
+│   │   │   ├── models/           # Typed Dart models
+│   │   │   ├── screens/          # Views (Login, Account, Flocks, Formulate, Result, Legal)
+│   │   │   └── widgets/          # Custom Pareto chart, location selector, cards, pills
+│   │   └── main.dart             # Application root entry point
+│   └── pubspec.yaml              # Flutter project dependencies
+├── notebook/                     # Jupyter notebooks for model validation
+│   └── ModelNotebook.ipynb       # Model training, feature analysis, and backtesting
+├── docs/                         # PlantUML & Mermaid UML architecture diagrams
+├── apk/                          # Compiled Android application binaries
+├── TABLE.md                      # Feature matrix & target variable technical specification
+├── REPORT.md                     # Empirical evaluation and performance report
+├── DEPLOYMENT.md                 # Production deployment and server setup guide
+└── LICENSE                       # MIT Open Source License
 ```
+
+---
+
+## Local Setup & Quick Start Guide
+
+### Prerequisites
+*   **Python 3.12+**
+*   **Flutter SDK 3.19+** (for mobile client compilation)
+*   **PostgreSQL 15+** (optional; SQLite fallback available for local development)
+
+### 1. Backend Service Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/degide/poultry-feed-formulation.git
+cd poultry-feed-formulation/backend
+
+# Create and activate virtual environment
+python3 -m venv ../venv
+source ../venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Execute database migrations & seed initial ingredient/price data
+alembic upgrade head
+python -m app.db.seed
+
+# Start local FastAPI development server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+Access the interactive API documentation at `http://localhost:8000/docs`.
+
+### 2. Running Verification & Test Suites
+
+The codebase includes three standalone test suites verifying core system components:
+
+```bash
+# 1. Validate optimization solvers (SciPy LP vs DEAP NSGA-II)
+python test_optimizer.py
+
+# 2. Validate GBR price forecaster & walk-forward backtest
+python forecast_e2e.py
+
+# 3. Validate full REST API end-to-end integration
+python e2e_smoke.py
+```
+
+### 3. Model Development Notebook
+
+```bash
+pip install -r notebook/requirements.txt
+jupyter notebook notebook/ModelNotebook.ipynb
+```
+
+### 4. Mobile Client Setup (Flutter)
+
+```bash
+cd ../mobile
+
+# Fetch Flutter packages
+flutter pub get
+
+# Run on Chrome for web testing
+flutter run -d chrome
+
+# Build release Android APK
+flutter build apk --release
+```
+
+---
 
 ## Screenshots
 
-### Backend Swagger UI
+### 1. Interactive OpenAPI / Swagger Documentation
+![Swagger Interface](./screenshots/swagger.png)
 
-![swagger screenshot](./screenshots/swagger.png)
+### 2. Flutter Mobile Application
+<p float="left">
+  <img src="./screenshots/login.png" width="30%" alt="Login Screen" />
+  <img src="./screenshots/price_forecasts.png" width="30%" alt="Price Forecasts" />
+  <img src="./screenshots/formulation _ration_details.png" width="30%" alt="Ration Details" />
+</p>
 
-### Mobile Client UI
-
-![login](./screenshots/login.png) ![price forecasts](./screenshots/price_forecasts.png) ![formulated ration](./screenshots/formulation%20_ration_details.png)
+---
 
 ## License
 
-[MIT](./LICENSE)
+Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.
