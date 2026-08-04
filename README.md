@@ -1,7 +1,7 @@
 # Dynamic Least-Cost Poultry Feed Formulation under Sub-Saharan Market Volatility
 
 [![API Documentation](https://img.shields.io/badge/API_Docs-FastAPI_Swagger-009688?style=flat-square&logo=fastapi)](http://portstead.com:8000/docs)
-[![Android APK](https://img.shields.io/badge/Mobile_App-Android_APK-3DDC84?style=flat-square&logo=android)](./apk/feed_formulation-debug.apk)
+[![Android APK](https://img.shields.io/badge/Mobile_App-Android_APK-3DDC84?style=flat-square&logo=android)](./apk/feed_formulation_release.apk)
 [![Video Demo](https://img.shields.io/badge/Video_Defense-Watch_Demo-FF0000?style=flat-square&logo=youtube)](https://www.bugufi.link/8z-tu2)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
@@ -14,7 +14,7 @@ The system resolves the traditional **Linear Programming (LP) "vertex-hopping" p
 ## Key Deliverables & Quick Links
 
 *   **Live Swagger API Documentation:** [`http://portstead.com:8000/docs`](http://portstead.com:8000/docs)
-*   **Android Application Binary (APK):** [`apk/feed_formulation-debug.apk`](./apk/feed_formulation-debug.apk)
+*   **Android Application Binary (APK):** [`apk/feed_formulation_release.apk`](./apk/feed_formulation_release.apk)
 *   **System Video Defense & Demo:** [`https://www.bugufi.link/8z-tu2`](https://www.bugufi.link/8z-tu2)
 *   **Jupyter Model Development Notebook:** [`notebook/ModelNotebook.ipynb`](./notebook/ModelNotebook.ipynb)
 *   **Empirical Evaluation & Performance Report:** [`REPORT.md`](./REPORT.md)
@@ -61,25 +61,25 @@ The application adopts a decoupled, multi-tier client-server architecture:
 ### 1. Dual-Objective Pareto Formulation (NSGA-II)
 Traditional feed formulation uses Linear Programming (LP) to minimize cost alone ($f_1$), which pushes ingredient proportions to constraint polygon vertices (often 0%). Slight price variations cause binary ingredient swaps. NSGA-II solves a bi-objective trade-off problem:
 
-$$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{x}),\, f_2(\mathbf{x}) \right]^T$$
+$$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{x}),\, f_2(\mathbf{x}) \right]^T$$  
 
-*   **Objective 1: Total Ration Cost ($f_1$)**
+*   **Objective 1: Total Ration Cost ($f_1$)**  
     $$f_1(\mathbf{x}) = \sum_{i=1}^{n} x_i \cdot \hat{p}_i$$
     where $x_i$ is the weight fraction of ingredient $i$, and $\hat{p}_i$ is the observed or ML-forecasted retail price per kg in RWF.
 
-*   **Objective 2: Diet Transition Stability Index ($f_2$ / DTSI)**
-    $$f_2(\mathbf{x}) = 1 - \frac{\mathbf{x} \cdot \mathbf{x}^{\text{active}}}{\|\mathbf{x}\|_2 \|\mathbf{x}^{\text{active}}\|_2}$$
+*   **Objective 2: Diet Transition Stability Index ($f_2$ / DTSI)**  
+    $$f_2(\mathbf{x}) = 1 - \frac{\mathbf{x} \cdot \mathbf{x}^{\text{active}}}{\|\mathbf{x}\|_2 \|\mathbf{x}^{\text{active}}\|_2}$$  
     where $f_2(\mathbf{x})$ measures the cosine distance relative to the flock's active ration vector $\mathbf{x}^{\text{active}}$. Minimizing DTSI prevents sudden shifts in feed taste, texture, and microbial flora impact.
 
-*   **Feasible Region Constraints ($\mathcal{S}$)**
-    $$\sum_{i=1}^{n} x_i = 1, \qquad L_i \le x_i \le U_i \quad \forall i$$
-    $$\mathbf{A}_{\text{nutrients}} \cdot \mathbf{x} \ge \mathbf{b}_{\text{NRC(1994)}}$$
+*   **Feasible Region Constraints ($\mathcal{S}$)**  
+    $$\sum_{i=1}^{n} x_i = 1, \qquad L_i \le x_i \le U_i \quad \forall i$$  
+    $$\mathbf{A}_{\text{nutrients}} \cdot \mathbf{x} \ge \mathbf{b}_{\text{NRC(1994)}}$$  
     Enforces exact nutritional bounds for Crude Protein, Metabolizable Energy, Lysine, Methionine, Calcium, Available Phosphorus, Crude Fibre, and Dry Matter based on National Research Council (1994) poultry standards.
 
 ### 2. Price Forecasting Pipeline (GBR)
 *   **Target Variable**: One-month-ahead log-return $r_{i,t} = \ln\left(P_{i,t} / P_{i,t-1}\right)$ derived from 39+ months of World Food Programme (WFP) and Rwanda Agriculture Board (RAB) retail data. Log-differencing ensures stationarity.
 *   **Feature Matrix**: 1, 2, and 3-month return lags ($r_{t-1}, r_{t-2}, r_{t-3}$), 3-month rolling return mean ($\bar{r}_3$), rolling volatility ($\sigma_3$), harmonic seasonal sine/cosine terms ($\sin\frac{2\pi m}{12}, \cos\frac{2\pi m}{12}$), and categorical ingredient indicators.
-*   **Nominal Price Reconstruction**:
+*   **Nominal Price Reconstruction**:  
     $$\hat{P}_{i,t+1} = P_{i,t} \cdot \exp(\hat{r}_{i,t+1})$$
 
 ---
@@ -143,7 +143,6 @@ poultry-feed-formulation/
 │   └── ModelNotebook.ipynb       # Model training, feature analysis, and backtesting
 ├── docs/                         # PlantUML & Mermaid UML architecture diagrams
 ├── apk/                          # Compiled Android application binaries
-├── TABLE.md                      # Feature matrix & target variable technical specification
 ├── REPORT.md                     # Empirical evaluation and performance report
 ├── DEPLOYMENT.md                 # Production deployment and server setup guide
 └── LICENSE                       # MIT Open Source License
@@ -155,8 +154,8 @@ poultry-feed-formulation/
 
 ### Prerequisites
 *   **Python 3.12+**
-*   **Flutter SDK 3.19+** (for mobile client compilation)
-*   **PostgreSQL 15+** (optional; SQLite fallback available for local development)
+*   **Flutter SDK 3.19+**
+*   **PostgreSQL 15+**
 
 ### 1. Backend Service Setup
 
