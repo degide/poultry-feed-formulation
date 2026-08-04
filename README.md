@@ -1,7 +1,7 @@
 # Dynamic Least-Cost Poultry Feed Formulation under Sub-Saharan Market Volatility
 
 [![API Documentation](https://img.shields.io/badge/API_Docs-FastAPI_Swagger-009688?style=flat-square&logo=fastapi)](http://portstead.com:8000/docs)
-[![Android APK](https://img.shields.io/badge/Mobile_App-Android_APK-3DDC84?style=flat-square&logo=android)](./apk/feed_formulation_release.apk)
+[![Android APK](https://img.shields.io/badge/Mobile_App-Android_APK-3DDC84?style=flat-square&logo=android)](https://github.com/degide/poultry-feed-formulation/releases/download/v1.0.0-alpha/feed_formulation_release.apk)
 [![Video Demo](https://img.shields.io/badge/Video_Defense-Watch_Demo-FF0000?style=flat-square&logo=youtube)](https://www.bugufi.link/8z-tu2)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
@@ -9,19 +9,15 @@ A cross-platform software engineering system that integrates a machine learning 
 
 The system resolves the traditional **Linear Programming (LP) "vertex-hopping" phenomenon**, where minor market price shifts cause sudden ingredient dropouts and abrupt diet changes that induce gut stress and egg-laying drops in poultry flocks, by optimizing both ration cost and **Diet Transition Stability (DTSI)**.
 
----
-
 ## Key Deliverables & Quick Links
 
 *   **Live Swagger API Documentation:** [`http://portstead.com:8000/docs`](http://portstead.com:8000/docs)
-*   **Android Application Binary (APK):** [`apk/feed_formulation_release.apk`](./apk/feed_formulation_release.apk)
+*   **Android Application Binary (APK):** [`feed_formulation_release.apk`](https://github.com/degide/poultry-feed-formulation/releases/download/v1.0.0-alpha/feed_formulation_release.apk)
 *   **System Video Defense & Demo:** [`https://www.bugufi.link/8z-tu2`](https://www.bugufi.link/8z-tu2)
 *   **Jupyter Model Development Notebook:** [`notebook/ModelNotebook.ipynb`](./notebook/ModelNotebook.ipynb)
 *   **Empirical Evaluation & Performance Report:** [`REPORT.md`](./REPORT.md)
 *   **Production Deployment & Server Infrastructure Guide:** [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 *   **UML System Diagrams Specification:** [`docs/uml`](./docs/uml/)
-
----
 
 ## System Architecture
 
@@ -54,26 +50,27 @@ The application adopts a decoupled, multi-tier client-server architecture:
 1.  **Backend Web Gateway & Optimization Service (`backend/`)**: Built with **FastAPI** and **Python 3.12**, managing database ORM persistence via **PostgreSQL**, executing the **SciPy `linprog`** LP baseline, running the **DEAP NSGA-II** evolutionary solver, and orchestrating the **Scikit-learn** Gradient Boosting price forecaster.
 2.  **Cross-Platform Client Application (`mobile/`)**: Built with **Flutter**, providing flock management, local market price entry, asynchronous optimization job execution, interactive Pareto front visualization, and offline data persistence via SQLite.
 
----
-
 ## Mathematical Formulations & Optimization Mechanics
 
 ### 1. Dual-Objective Pareto Formulation (NSGA-II)
 Traditional feed formulation uses Linear Programming (LP) to minimize cost alone ($f_1$), which pushes ingredient proportions to constraint polygon vertices (often 0%). Slight price variations cause binary ingredient swaps. NSGA-II solves a bi-objective trade-off problem:
 
-$$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{x}),\, f_2(\mathbf{x}) \right]^T$$  
+$$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{x}),\, f_2(\mathbf{x}) \right]^T$$
 
 *   **Objective 1: Total Ration Cost ($f_1$)**  
     $$f_1(\mathbf{x}) = \sum_{i=1}^{n} x_i \cdot \hat{p}_i$$
     where $x_i$ is the weight fraction of ingredient $i$, and $\hat{p}_i$ is the observed or ML-forecasted retail price per kg in RWF.
 
-*   **Objective 2: Diet Transition Stability Index ($f_2$ / DTSI)**  
-    $$f_2(\mathbf{x}) = 1 - \frac{\mathbf{x} \cdot \mathbf{x}^{\text{active}}}{\|\mathbf{x}\|_2 \|\mathbf{x}^{\text{active}}\|_2}$$  
+*   **Objective 2: Diet Transition Stability Index ($f_2$ / DTSI)**
+    $$f_2(\mathbf{x}) = 1 - \frac{\mathbf{x} \cdot \mathbf{x}^{\text{active}}}{\|\mathbf{x}\|_2 \|\mathbf{x}^{\text{active}}\|_2}$$
     where $f_2(\mathbf{x})$ measures the cosine distance relative to the flock's active ration vector $\mathbf{x}^{\text{active}}$. Minimizing DTSI prevents sudden shifts in feed taste, texture, and microbial flora impact.
 
 *   **Feasible Region Constraints ($\mathcal{S}$)**  
-    $$\sum_{i=1}^{n} x_i = 1, \qquad L_i \le x_i \le U_i \quad \forall i$$  
-    $$\mathbf{A}_{\text{nutrients}} \cdot \mathbf{x} \ge \mathbf{b}_{\text{NRC(1994)}}$$  
+
+    $$\sum_{i=1}^{n} x_i = 1, \qquad L_i \le x_i \le U_i \quad \forall i$$
+
+    $$\mathbf{A}_{\text{nutrients}} \cdot \mathbf{x} \ge \mathbf{b}_{\text{NRC(1994)}}$$
+
     Enforces exact nutritional bounds for Crude Protein, Metabolizable Energy, Lysine, Methionine, Calcium, Available Phosphorus, Crude Fibre, and Dry Matter based on National Research Council (1994) poultry standards.
 
 ### 2. Price Forecasting Pipeline (GBR)
@@ -81,8 +78,6 @@ $$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{
 *   **Feature Matrix**: 1, 2, and 3-month return lags ($r_{t-1}, r_{t-2}, r_{t-3}$), 3-month rolling return mean ($\bar{r}_3$), rolling volatility ($\sigma_3$), harmonic seasonal sine/cosine terms ($\sin\frac{2\pi m}{12}, \cos\frac{2\pi m}{12}$), and categorical ingredient indicators.
 *   **Nominal Price Reconstruction**:  
     $$\hat{P}_{i,t+1} = P_{i,t} \cdot \exp(\hat{r}_{i,t+1})$$
-
----
 
 ## Empirical Benchmark Highlights
 
@@ -147,8 +142,6 @@ poultry-feed-formulation/
 ├── DEPLOYMENT.md                 # Production deployment and server setup guide
 └── LICENSE                       # MIT Open Source License
 ```
-
----
 
 ## Local Setup & Quick Start Guide
 
@@ -217,8 +210,6 @@ flutter run -d chrome
 flutter build apk --release
 ```
 
----
-
 ## Screenshots
 
 ### 1. Interactive OpenAPI / Swagger Documentation
@@ -230,8 +221,6 @@ flutter build apk --release
   <img src="./screenshots/price_forecasts.png" width="30%" alt="Price Forecasts" />
   <img src="./screenshots/formulation _ration_details.png" width="30%" alt="Ration Details" />
 </p>
-
----
 
 ## License
 

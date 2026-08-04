@@ -4,7 +4,7 @@ This directory contains the Dart source code for the Flutter mobile application,
 
 The mobile app operates as a thin client: it communicates with the FastAPI backend to run optimization jobs, fetch price forecasts, retrieve historical logs, and record local market prices.
 
-Android APK: [feed_formulation_release.apk](../apk/feed_formulation_release.apk)
+Android APK: [feed_formulation_release.apk](https://github.com/degide/poultry-feed-formulation/releases/download/v1.0.0-alpha/feed_formulation_release.apk)
 
 ## Requirements & Setup
 
