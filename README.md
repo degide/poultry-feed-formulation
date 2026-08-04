@@ -69,7 +69,7 @@ $$\min_{\mathbf{x} \in \mathcal{S}} \mathbf{F}(\mathbf{x}) = \left[ f_1(\mathbf{
 
     $$\sum_{i=1}^{n} x_i = 1, \qquad L_i \le x_i \le U_i \quad \forall i$$
 
-    $$\mathbf{A}_{\text{nutrients}} \cdot \mathbf{x} \ge \mathbf{b}_{\text{NRC(1994)}}$$
+    $`\mathbf{A}_{\text{nutrients}} \cdot \mathbf{x} \ge \mathbf{b}_{\text{NRC(1994)}}`$
 
     Enforces exact nutritional bounds for Crude Protein, Metabolizable Energy, Lysine, Methionine, Calcium, Available Phosphorus, Crude Fibre, and Dry Matter based on National Research Council (1994) poultry standards.
 
