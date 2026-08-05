@@ -1,0 +1,41 @@
+name: feed-formulation
+services:
+  feed-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-feed_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-feed_password}
+      POSTGRES_DB: ${POSTGRES_DB:-feed_formulation}
+    volumes:
+      - feed_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-feed_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - feed_network
+
+  feed-backend:
+    image: feed-backend:latest
+    build: .
+    depends_on:
+      feed-db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: development
+      POSTGRES_USER: ${POSTGRES_USER:-feed_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-feed_password}
+      POSTGRES_HOST: feed-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-feed_formulation}
+      SECRET_KEY: ${SECRET_KEY:-CHANGE_ME}
+    networks:
+      - feed_network
+
+networks:
+  feed_network:
+    name: feed-network
+
+volumes:
+  feed_db_data:

@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 8000
 
 # Run migrations then start the ASGI server.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "alembic upgrade head && python -m app.db.seed_ingredients && python -m app.db.seed_price_history && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"]
