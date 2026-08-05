@@ -1,6 +1,6 @@
 # Dynamic Least-Cost Poultry Feed Formulation under Sub-Saharan Market Volatility
 
-[![API Documentation](https://img.shields.io/badge/API_Docs-FastAPI_Swagger-009688?style=flat-square&logo=fastapi)](http://portstead.com:8000/docs)
+[![API Documentation](https://img.shields.io/badge/API_Docs-FastAPI_Swagger-009688?style=flat-square&logo=fastapi)](https://feed-api.portstead.com/docs)
 [![Android APK](https://img.shields.io/badge/Mobile_App-Android_APK-3DDC84?style=flat-square&logo=android)](https://github.com/degide/poultry-feed-formulation/releases/download/v1.0.0-alpha/feed_formulation_release.apk)
 [![Video Demo](https://img.shields.io/badge/Video_Defense-Watch_Demo-FF0000?style=flat-square&logo=youtube)](https://www.bugufi.link/8z-tu2)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -11,7 +11,7 @@ The system resolves the traditional **Linear Programming (LP) "vertex-hopping" p
 
 ## Key Deliverables & Quick Links
 
-*   **Live Swagger API Documentation:** [`http://portstead.com:8000/docs`](http://portstead.com:8000/docs)
+*   **Live Swagger API Documentation:** [`https://feed-api.portstead.com/docs`](https://feed-api.portstead.com/docs)
 *   **Android Application Binary (APK):** [`feed_formulation_release.apk`](https://github.com/degide/poultry-feed-formulation/releases/download/v1.0.0-alpha/feed_formulation_release.apk)
 *   **System Video Defense & Demo:** [`https://www.bugufi.link/8z-tu2`](https://www.bugufi.link/8z-tu2)
 *   **Jupyter Model Development Notebook:** [`notebook/ModelNotebook.ipynb`](./notebook/ModelNotebook.ipynb)
